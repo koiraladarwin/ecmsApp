@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "./proto;proto";
+
+enum MessageType {
+  TEXT = 0;
+  PHOTO = 1;
+}
+
+message ChatMessage {
+  MessageType type = 1;
+  string content = 2;   
+  int64 timestamp = 4;     
+}
