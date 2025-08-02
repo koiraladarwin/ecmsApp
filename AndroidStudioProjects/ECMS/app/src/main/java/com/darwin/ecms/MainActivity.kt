@@ -21,6 +21,7 @@ import com.darwin.ecms.features.auth.AuthState
 import com.darwin.ecms.features.auth.AuthViewModel
 import com.darwin.ecms.features.auth.GoogleAuthUiClient
 import com.darwin.ecms.features.auth.UserData
+import com.darwin.ecms.ui.theme.EcmsTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            EcmsTheme {
                 var signedIn by remember { mutableStateOf<UserData?>(null) }
                 val authState by authViewModel.authState.collectAsState()
 
@@ -57,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     MainLayout(it, onSignOut = {
                         authViewModel.signOut()
                     })
-                    return@MaterialTheme
+                    return@EcmsTheme
                 }
 
                 AuthScreen(

@@ -1,32 +1,46 @@
 package com.darwin.ecms
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.darwin.ecms.features.auth.UserData
+import com.darwin.ecms.features.main.presentation.HomeScreen
 
 
 sealed class Screen(val route: String) {
@@ -55,11 +69,39 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
     val shouldShowTopBar = currentRoute in bottomBarRoutes
 
     Scaffold(
+
+
         topBar = {
             if (shouldShowTopBar) {
-                TopAppBar(title = { Text("Ecms") })
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "ECMS",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    },
+
+                    actions = {
+                        IconButton(onClick = { /* Handle settings */ }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Options",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+                )
             }
-        },
+        }
+,
+
         floatingActionButton = {
             if (currentRoute == Screen.Home.route) {
                 FloatingActionButton(onClick = { /* TODO */ }) {
@@ -83,7 +125,7 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
             navController = navController,
             startDestination = Screen.Home.route,
             modifier = Modifier
-                .padding(innerPadding)
+            .padding(innerPadding)
                 .fillMaxSize()
         ) {
             composable(Screen.Home.route) { HomeScreen(navController) }
@@ -127,54 +169,105 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
 }
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+fun AdmissionCard(
+    name: String,
+    code: String,
+    ageGroup: String,
+    admissions: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .padding(10.dp)
+            .height(100.dp)  // exact height limit
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(), // fill the Box
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .background(Color.Gray)
-                        .clickable {
-                            navController.navigate("inside")
-                        }
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .background(Color.Gray)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+            // Vertical blue bar
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .background(Color(0xFFE0E0E0))
+                    .height(400.dp)
+                    .width(4.dp)
+                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
+                    .background(Color(0xFF1976D2))
             )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Profile image
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Profile",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Info section — weight fills horizontal space but height wraps content
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = code,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
+                }
+
+                Text(
+                    text = ageGroup,
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Text(
+                    text = admissions,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
 
 @Composable
 fun SearchScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Search Screen")
+    Column(){
+        AdmissionCard(
+            name = "Giulio Ciccone",
+            code = "MEM-1",
+            ageGroup = "Executive",
+            admissions = "OCS Business Solution",
+            imageUrl = "https://randomuser.me/api/portraits/men/32.jpg",
+        )
+        AdmissionCard(
+            name = "Bruce Wayne",
+            code = "MEM-2",
+            ageGroup = "Executive",
+            admissions = "OCS Business Solution",
+            imageUrl = "https://randomuser.me/api/portraits/men/30.jpg",
+        )
     }
+
 }
+
 
 @Composable
 fun NotificationsScreen() {
@@ -191,7 +284,7 @@ fun ProfileScreen(onSignOut: () -> Unit) {
 }
 
 @Composable
-fun InsideRoute(){
+fun InsideRoute() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Inside Screen")
     }
