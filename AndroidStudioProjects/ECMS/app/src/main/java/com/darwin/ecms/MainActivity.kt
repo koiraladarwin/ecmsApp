@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 signedIn?.let {
-                    MainScreen(it, onSignOut = {
+                    MainLayout(it, onSignOut = {
                         authViewModel.signOut()
                     })
                     return@MaterialTheme
