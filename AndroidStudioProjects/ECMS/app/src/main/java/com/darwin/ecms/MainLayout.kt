@@ -1,60 +1,62 @@
 package com.darwin.ecms
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
+import androidx.navigation.navArgument
 import com.darwin.ecms.features.auth.UserData
+import com.darwin.ecms.features.main.presentation.AddEventDialog
+import com.darwin.ecms.features.main.presentation.EventInfoScreen
+import com.darwin.ecms.features.main.presentation.EventInfoTopBar
 import com.darwin.ecms.features.main.presentation.HomeScreen
+import com.darwin.ecms.features.main.presentation.MainTopAppBar
+import com.darwin.ecms.features.main.presentation.StaffScreen
 
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Staff : Screen("staff")
-    object Notifications : Screen("notifications")
+    object Notifications : Screen("alert")
     object Settings : Screen("settings")
+    object Profile : Screen("profile")
+    object EventInfo : Screen("event_info/{eventId}") {
+        fun withId(id: String) = "event_info/$id"
+    }
 }
 
 val bottomBarRoutes = listOf(
     Screen.Home.route,
     Screen.Staff.route,
     Screen.Notifications.route,
-    Screen.Settings.route
+    Screen.Settings.route,
+    Screen.Profile.route
 )
 
 
@@ -66,45 +68,38 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
     val currentRoute = currentBackStackEntry?.destination?.route
 
     val shouldShowBottomBar = currentRoute in bottomBarRoutes
-    val shouldShowTopBar = currentRoute in bottomBarRoutes
+
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    AddEventDialog(
+        visible = showDialog,
+        onDismiss = { showDialog = false },
+        onSubmit = { eventData ->
+            showDialog = false
+            println("Event submitted: $eventData")
+        }
+    )
 
     Scaffold(
 
-
         topBar = {
-            if (shouldShowTopBar) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "ECMS",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    },
-
-                    actions = {
-                        IconButton(onClick = { /* Handle settings */ }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Options",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-                )
-            }
-        }
-,
+                when {
+                    currentRoute == Screen.Home.route -> MainTopAppBar(title = "Home")
+                    currentRoute == Screen.Staff.route -> MainTopAppBar(title = "Staff")
+                    currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
+                    currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
+                    currentRoute == Screen.Profile.route -> MainTopAppBar(title = "Profile")
+                    currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
+                    else -> {}
+                }
+        },
 
         floatingActionButton = {
             if (currentRoute == Screen.Home.route) {
-                FloatingActionButton(onClick = { /* TODO */ }) {
+                FloatingActionButton(onClick = {
+                    showDialog = true
+                }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             }
@@ -122,17 +117,33 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
         }
     ) { innerPadding ->
         NavHost(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None },
             navController = navController,
             startDestination = Screen.Home.route,
+
             modifier = Modifier
-            .padding(innerPadding)
+                .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            composable(Screen.Home.route) { HomeScreen(navController) }
-            composable(Screen.Staff.route) { SearchScreen() }
+            composable(Screen.Home.route) {
+                HomeScreen(navigateToEventInfo = { eventId ->
+                    navController.navigate(Screen.EventInfo.withId(eventId))
+                })
+            }
+            composable(Screen.Staff.route) { StaffScreen() }
             composable(Screen.Notifications.route) { NotificationsScreen() }
-            composable(Screen.Settings.route) { ProfileScreen(onSignOut) }
-            composable("inside") { InsideRoute() }
+            composable(Screen.Settings.route) { SettingsScreen() }
+            composable(Screen.Profile.route) { ProfileScreen(onSignOut) }
+            composable(
+                route = Screen.EventInfo.route,
+                arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId")
+                EventInfoScreen(eventId = eventId.toString())
+            }
         }
     }
 }
@@ -143,7 +154,8 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
         Screen.Home,
         Screen.Staff,
         Screen.Notifications,
-        Screen.Settings
+        Screen.Settings,
+        Screen.Profile
     )
 
     NavigationBar {
@@ -153,9 +165,11 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
                     Icon(
                         imageVector = when (screen) {
                             is Screen.Home -> Icons.Default.Home
-                            is Screen.Staff -> Icons.Default.Person
+                            is Screen.Staff -> Icons.Default.AccountBox
                             is Screen.Notifications -> Icons.Default.Notifications
                             is Screen.Settings -> Icons.Default.Settings
+                            is Screen.Profile -> Icons.Default.Person
+                            else -> Icons.Default.Clear
                         },
                         contentDescription = screen.route
                     )
@@ -166,106 +180,6 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
             )
         }
     }
-}
-
-@Composable
-fun AdmissionCard(
-    name: String,
-    code: String,
-    ageGroup: String,
-    admissions: String,
-    imageUrl: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .padding(10.dp)
-            .height(100.dp)  // exact height limit
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(), // fill the Box
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Vertical blue bar
-            Box(
-                modifier = Modifier
-                    .height(400.dp)
-                    .width(4.dp)
-                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
-                    .background(Color(0xFF1976D2))
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Profile image
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "Profile",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Info section — weight fills horizontal space but height wraps content
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 4.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = code,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
-                    )
-                }
-
-                Text(
-                    text = ageGroup,
-                    style = MaterialTheme.typography.bodySmall
-                )
-
-                Text(
-                    text = admissions,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun SearchScreen() {
-    Column(){
-        AdmissionCard(
-            name = "Giulio Ciccone",
-            code = "MEM-1",
-            ageGroup = "Executive",
-            admissions = "OCS Business Solution",
-            imageUrl = "https://randomuser.me/api/portraits/men/32.jpg",
-        )
-        AdmissionCard(
-            name = "Bruce Wayne",
-            code = "MEM-2",
-            ageGroup = "Executive",
-            admissions = "OCS Business Solution",
-            imageUrl = "https://randomuser.me/api/portraits/men/30.jpg",
-        )
-    }
-
 }
 
 
@@ -284,8 +198,8 @@ fun ProfileScreen(onSignOut: () -> Unit) {
 }
 
 @Composable
-fun InsideRoute() {
+fun SettingsScreen() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Inside Screen")
+        Text("Settings Screen")
     }
 }

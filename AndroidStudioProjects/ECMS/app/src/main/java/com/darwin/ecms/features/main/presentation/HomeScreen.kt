@@ -6,10 +6,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navigateToEventInfo: (String) -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -19,8 +18,11 @@ fun HomeScreen(navController: NavController) {
                 title = "Yoga Live Music Workshop",
                 date = "Fri May 04 2018 at 12:00 am",
                 location = "Sunnyville",
-                ticketSales = 26,
-                checkedIn = 1
+                attendees = 26,
+                staff = 10,
+                onClickActivity = { navigateToEventInfo("here") },
+                onClickAttendees = {},
+                onClickStaff = {}
             )
 
             EventCard(
@@ -28,8 +30,11 @@ fun HomeScreen(navController: NavController) {
                 title = "Tech Talks & Startup Demos",
                 date = "Sat Sep 14 2025 at 2:00 pm",
                 location = "Innovation Hub, Silicon City",
-                ticketSales = 112,
-                checkedIn = 47
+                attendees = 112,
+                staff = 9,
+                onClickActivity = { navigateToEventInfo("here") },
+                onClickAttendees = {},
+                onClickStaff = {}
             )
 
         }

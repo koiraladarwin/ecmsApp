@@ -1,28 +1,24 @@
 package com.darwin.ecms.features.main.presentation
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,12 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.darwin.ecms.R
 
 @Composable
 fun EventCard(
@@ -43,8 +36,11 @@ fun EventCard(
     title: String,
     date: String,
     location: String,
-    ticketSales: Int,
-    checkedIn: Int
+    attendees: Int,
+    staff: Int,
+    onClickAttendees: () -> Unit,
+    onClickStaff: () -> Unit,
+    onClickActivity: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -57,7 +53,6 @@ fun EventCard(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer),
         ) {
-            // Event image with overlay
             Box(modifier = Modifier.height(179.dp)) {
                 AsyncImage(
                     model = imageUrl,
@@ -97,31 +92,56 @@ fun EventCard(
 
             Divider()
 
-            // Ticket stats only
+
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(15.dp),
+                    .padding(2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onClickAttendees)
+                        .padding(16.dp)
+                ) {
                     Text("Attendees", style = MaterialTheme.typography.labelMedium)
                     Text(
-                        "$ticketSales",
+                        "$attendees",
                         color = Color(0xFF177F37),
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Activities", style = MaterialTheme.typography.labelMedium)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onClickStaff)
+                        .padding(16.dp)
+                ) {
+                    Text("Staffs", style = MaterialTheme.typography.labelMedium)
                     Text(
-                        "$checkedIn",
-                        color = MaterialTheme.colorScheme.onSurface,
+                        "$staff",
+                        color = Color(0xFF2196F3),
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onClickActivity)
+                        .padding(23.dp)
+                ) {
+                    Box() {
+                        Icon(Icons.Default.Edit, contentDescription = "Info")
+                    }
+                }
             }
+
         }
     }
 }
