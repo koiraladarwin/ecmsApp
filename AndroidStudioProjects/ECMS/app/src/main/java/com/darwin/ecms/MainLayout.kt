@@ -40,6 +40,7 @@ import com.darwin.ecms.features.main.presentation.components.MainTopAppBar
 import com.darwin.ecms.features.main.presentation.components.QrScannerView
 import com.darwin.ecms.features.main.presentation.screens.StaffScreen
 import com.darwin.ecms.features.main.presentation.screens.AttendeesScreen
+import com.darwin.ecms.features.main.presentation.screens.ScanAttendeeScreen
 
 
 sealed class Screen(val route: String) {
@@ -163,8 +164,8 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 val eventId = backStackEntry.arguments?.getString("eventId")
                 EventInfoScreen(
                     eventId = eventId.toString(),
-                    navigateToScan = {
-                        navController.navigate(Screen.ScanAttendee.withId(eventId.toString()))
+                    navigateToScan = {activityId->
+                        navController.navigate(Screen.ScanAttendee.withId(activityId.toString()))
                     }
                 )
             }
@@ -180,7 +181,7 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 arguments = listOf(navArgument("activityId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val activityId = backStackEntry.arguments?.getString("activityId")
-                ScanUserByActivity(activityId = activityId.toString())
+                ScanAttendeeScreen(activityId = activityId.toString())
             }
         }
     }
@@ -242,9 +243,3 @@ fun SettingsScreen() {
     }
 }
 
-@Composable
-fun ScanUserByActivity(activityId: String) {
-    QrScannerView { attendeeId ->
-        Log.d("batmanboxer", attendeeId)
-    }
-}

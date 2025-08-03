@@ -1,6 +1,7 @@
 package com.darwin.ecms.features.main.presentation.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -240,12 +241,12 @@ fun ActivityStats(
             modifier = Modifier.fillMaxWidth()
         ) {
             StatCard(
-                label = "Total Guests",
+                label = "Total",
                 value = totalGuests.toString(),
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                label = "Scanned Guests",
+                label = "Scanned",
                 value = scannedGuests.toString(),
                 modifier = Modifier.weight(1f)
             )
