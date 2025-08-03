@@ -32,12 +32,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.darwin.ecms.features.auth.UserData
-import com.darwin.ecms.features.main.presentation.AddEventDialog
-import com.darwin.ecms.features.main.presentation.EventInfoScreen
-import com.darwin.ecms.features.main.presentation.EventInfoTopBar
-import com.darwin.ecms.features.main.presentation.HomeScreen
-import com.darwin.ecms.features.main.presentation.MainTopAppBar
-import com.darwin.ecms.features.main.presentation.StaffScreen
+import com.darwin.ecms.features.main.presentation.components.AddEventDialog
+import com.darwin.ecms.features.main.presentation.screens.EventInfoScreen
+import com.darwin.ecms.features.main.presentation.screens.HomeScreen
+import com.darwin.ecms.features.main.presentation.components.MainTopAppBar
+import com.darwin.ecms.features.main.presentation.screens.StaffScreen
+import com.darwin.ecms.features.main.presentation.screens.AttendeesScreen
 
 
 sealed class Screen(val route: String) {
@@ -48,6 +48,10 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object EventInfo : Screen("event_info/{eventId}") {
         fun withId(id: String) = "event_info/$id"
+    }
+
+    object Attendees : Screen("attendees/{eventId}") {
+        fun withId(id: String) = "attendees/$id"
     }
 }
 
@@ -84,15 +88,16 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
     Scaffold(
 
         topBar = {
-                when {
-                    currentRoute == Screen.Home.route -> MainTopAppBar(title = "Home")
-                    currentRoute == Screen.Staff.route -> MainTopAppBar(title = "Staff")
-                    currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
-                    currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
-                    currentRoute == Screen.Profile.route -> MainTopAppBar(title = "Profile")
-                    currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
-                    else -> {}
-                }
+            when {
+                currentRoute == Screen.Home.route -> MainTopAppBar(title = "Home")
+                currentRoute == Screen.Staff.route -> MainTopAppBar(title = "Staff")
+                currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
+                currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
+                currentRoute == Screen.Profile.route -> MainTopAppBar(title = "Profile")
+                currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
+                currentRoute?.startsWith(Screen.Attendees.route) == true -> MainTopAppBar(title = "Attendees")
+                else -> {}
+            }
         },
 
         floatingActionButton = {
@@ -129,9 +134,17 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 .fillMaxSize()
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(navigateToEventInfo = { eventId ->
-                    navController.navigate(Screen.EventInfo.withId(eventId))
-                })
+                HomeScreen(
+                    navigateToEventInfo = { eventId ->
+                        navController.navigate(Screen.EventInfo.withId(eventId))
+                    },
+                    navigateToAttendeeInfo = { eventId ->
+                        navController.navigate(Screen.Attendees.withId(eventId))
+                    },
+                    navigateToStaffInfo = {
+                        //todo
+                    }
+                )
             }
             composable(Screen.Staff.route) { StaffScreen() }
             composable(Screen.Notifications.route) { NotificationsScreen() }
@@ -144,6 +157,14 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 val eventId = backStackEntry.arguments?.getString("eventId")
                 EventInfoScreen(eventId = eventId.toString())
             }
+            composable(
+                route = Screen.Attendees.route,
+                arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val eventId = backStackEntry.arguments?.getString("eventId")
+                AttendeesScreen(eventId = eventId.toString())
+            }
+
         }
     }
 }
@@ -203,3 +224,4 @@ fun SettingsScreen() {
         Text("Settings Screen")
     }
 }
+

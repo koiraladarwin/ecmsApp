@@ -1,8 +1,11 @@
 package com.darwin.ecms.features.main.domain.models
 
 data class EventData(
+    val id: String,
     val name: String,
+    val imageUrl: String,
     val location: String,
-    val startTime: String,
-    val endTime: String
+    val date: String,
+    val attendees: Int,
+    val staffs: Int,
 )

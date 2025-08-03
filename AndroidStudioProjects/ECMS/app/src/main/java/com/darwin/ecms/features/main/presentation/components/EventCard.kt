@@ -1,4 +1,4 @@
-package com.darwin.ecms.features.main.presentation
+package com.darwin.ecms.features.main.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +17,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +35,7 @@ fun EventCard(
     date: String,
     location: String,
     attendees: Int,
-    staff: Int,
+    staffs: Int,
     onClickAttendees: () -> Unit,
     onClickStaff: () -> Unit,
     onClickActivity: () -> Unit
@@ -123,7 +121,7 @@ fun EventCard(
                 ) {
                     Text("Staffs", style = MaterialTheme.typography.labelMedium)
                     Text(
-                        "$staff",
+                        "$staffs",
                         color = Color(0xFF2196F3),
                         style = MaterialTheme.typography.titleMedium
                     )

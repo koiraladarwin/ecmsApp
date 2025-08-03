@@ -1,4 +1,4 @@
-package com.darwin.ecms.features.main.presentation
+package com.darwin.ecms.features.main.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,12 +12,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
-import com.darwin.ecms.features.main.domain.models.EventData
+import com.darwin.ecms.features.main.domain.models.CreateEventData
 
 @Composable
 fun AddEventDialog(
     visible: Boolean,
-    onSubmit: (EventData) -> Unit,
+    onSubmit: (CreateEventData) -> Unit,
     onDismiss: () -> Unit
 ) {
     if (!visible) return
@@ -32,7 +32,7 @@ fun AddEventDialog(
         title = { Text("Add Event") },
         confirmButton = {
             TextButton(onClick = {
-                onSubmit(EventData(name, location, startTime, endTime))
+                onSubmit(CreateEventData(name, location, startTime, endTime))
             }) {
                 Text("Save")
             }

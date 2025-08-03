@@ -1,0 +1,35 @@
+package com.darwin.ecms.features.main.presentation.viewModels
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.darwin.ecms.AuthUserObject
+import com.darwin.ecms.UiState
+import com.darwin.ecms.features.main.data.dto.toEventData
+import com.darwin.ecms.features.main.data.service.RetrofitInstance
+import com.darwin.ecms.features.main.domain.models.EventData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class HomeViewModel : ViewModel() {
+    private val _events = MutableStateFlow<UiState<List<EventData>>>(UiState.Loading)
+    val events: StateFlow<UiState<List<EventData>>> = _events
+
+    init {
+        fetchEvents()
+    }
+
+    private fun fetchEvents() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.apiService.getEvents(AuthUserObject.jwt.toString())
+                val mapped = response.map { it.toEventData() }
+                _events.value = UiState.Success(mapped)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _events.value = UiState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
+}
