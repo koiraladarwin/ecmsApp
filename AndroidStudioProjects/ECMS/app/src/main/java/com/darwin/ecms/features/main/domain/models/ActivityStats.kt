@@ -1,5 +1,6 @@
 package com.darwin.ecms.features.main.domain.models
 data class ActivityData(
+    val activityId:String,
     val title: String,
     val startTime: String,
     val endTime: String,

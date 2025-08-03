@@ -2,6 +2,7 @@ package com.darwin.ecms.features.main.presentation.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,8 +48,9 @@ import com.darwin.ecms.features.main.presentation.viewModels.EventInfoViewModel
 @Composable
 fun EventInfoScreen(
     eventId: String?,
-    viewModel: EventInfoViewModel = viewModel()
-)  {
+    viewModel: EventInfoViewModel = viewModel(),
+    navigateToScan: (String) -> Unit
+) {
     LaunchedEffect(eventId) {
         viewModel.loadEventInfo(eventId.toString())
     }
@@ -62,94 +64,103 @@ fun EventInfoScreen(
             }
         },
     ) {
-    when(val value = state.value){
-        is UiState.Error -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                Text(value.message)
+        when (val value = state.value) {
+            is UiState.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(value.message)
+                }
+                return@Scaffold
             }
-            return@Scaffold
-        }
-        UiState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                CircularProgressIndicator()
+
+            UiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+                return@Scaffold
             }
-            return@Scaffold
-        }
-        is UiState.Success<EventInfoData> ->{
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp)
-            ) {
+
+            is UiState.Success<EventInfoData> -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp)
                 ) {
-                    AsyncImage(
-                        model = "https://images.unsplash.com/photo-1531058020387-3be344556be6?w=500",
-                        contentDescription = "",
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Column() {
-
-                        Text(
-                            text = value.data.eventName,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = value.data.location,
-                            fontSize = 16.sp,
-                            color = Color.Gray
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
                     ) {
-                        Column(
+                        AsyncImage(
+                            model = "https://images.unsplash.com/photo-1531058020387-3be344556be6?w=500",
+                            contentDescription = "",
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.primaryContainer)
-                                .padding(16.dp),
-                        ) {
-                            StatRow(label = "Total Attendees", value = value.data.attendees.toString())
-                            StatRow(label = "Total Activity", value = value.data.activities.size.toString())
-                            StatRow(label = "Total Staffs", value = "1")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-
-                    Text("Activities", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    value.data.activities.forEach {
-                        ActivityStats(
-                            title = it.title,
-                            startTime = it.startTime,
-                            endTime = it.endTime,
-                            totalGuests = it.total,
-                            scannedGuests = it.checkedIn
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Column() {
+
+                            Text(
+                                text = value.data.eventName,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = value.data.location,
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            elevation = CardDefaults.cardElevation(4.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .padding(16.dp),
+                            ) {
+                                StatRow(
+                                    label = "Total Attendees",
+                                    value = value.data.attendees.toString()
+                                )
+                                StatRow(
+                                    label = "Total Activity",
+                                    value = value.data.activities.size.toString()
+                                )
+                                StatRow(label = "Total Staffs", value = "1")
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+
+                        Text("Activities", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        value.data.activities.forEach {
+                            ActivityStats(
+                                title = it.title,
+                                startTime = it.startTime,
+                                endTime = it.endTime,
+                                totalGuests = it.total,
+                                scannedGuests = it.checkedIn,
+                                onClick = {navigateToScan(it.activityId)}
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
                     }
                 }
             }
         }
-    }
 
     }
 }
@@ -175,13 +186,15 @@ fun ActivityStats(
     startTime: String,
     endTime: String,
     totalGuests: Int,
-    scannedGuests: Int
+    scannedGuests: Int,
+    onClick: () -> Unit
 ) {
     val progress = if (totalGuests > 0) scannedGuests / totalGuests.toFloat() else 0f
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(16.dp)

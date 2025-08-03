@@ -1,5 +1,6 @@
 package com.darwin.ecms
 
+import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,7 @@ import com.darwin.ecms.features.main.presentation.components.AddEventDialog
 import com.darwin.ecms.features.main.presentation.screens.EventInfoScreen
 import com.darwin.ecms.features.main.presentation.screens.HomeScreen
 import com.darwin.ecms.features.main.presentation.components.MainTopAppBar
+import com.darwin.ecms.features.main.presentation.components.QrScannerView
 import com.darwin.ecms.features.main.presentation.screens.StaffScreen
 import com.darwin.ecms.features.main.presentation.screens.AttendeesScreen
 
@@ -52,6 +54,10 @@ sealed class Screen(val route: String) {
 
     object Attendees : Screen("attendees/{eventId}") {
         fun withId(id: String) = "attendees/$id"
+    }
+
+    object ScanAttendee : Screen("scan_attendee/{activityId}") {
+        fun withId(id: String) = "scan_attendee/$id"
     }
 }
 
@@ -155,7 +161,12 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 arguments = listOf(navArgument("eventId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId")
-                EventInfoScreen(eventId = eventId.toString())
+                EventInfoScreen(
+                    eventId = eventId.toString(),
+                    navigateToScan = {
+                        navController.navigate(Screen.ScanAttendee.withId(eventId.toString()))
+                    }
+                )
             }
             composable(
                 route = Screen.Attendees.route,
@@ -164,7 +175,13 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 val eventId = backStackEntry.arguments?.getString("eventId")
                 AttendeesScreen(eventId = eventId.toString())
             }
-
+            composable(
+                route = Screen.ScanAttendee.route,
+                arguments = listOf(navArgument("activityId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val activityId = backStackEntry.arguments?.getString("activityId")
+                ScanUserByActivity(activityId = activityId.toString())
+            }
         }
     }
 }
@@ -225,3 +242,9 @@ fun SettingsScreen() {
     }
 }
 
+@Composable
+fun ScanUserByActivity(activityId: String) {
+    QrScannerView { attendeeId ->
+        Log.d("batmanboxer", attendeeId)
+    }
+}

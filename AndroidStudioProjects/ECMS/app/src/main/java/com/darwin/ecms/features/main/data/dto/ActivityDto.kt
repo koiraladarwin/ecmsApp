@@ -14,6 +14,7 @@ data class ActivityDto(
 )
 fun ActivityDto.toActivity(total:Int): ActivityData{
     return ActivityData(
+        activityId = id,
         title = name,
         startTime = start_time,
         endTime = end_time,
