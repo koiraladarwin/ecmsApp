@@ -57,6 +57,9 @@ fun AttendeesScreen(
     val searchText by viewModel.text.collectAsState()
     val state by viewModel.state.collectAsState()
 
+    val roles by viewModel.roles.collectAsState()
+    val selectedRole by viewModel.selectedRole.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.fetchUsers(eventId)
     }
@@ -84,6 +87,7 @@ fun AttendeesScreen(
                     modifier = Modifier.weight(7.5f)
                 )
 
+
                 Box(
                     modifier = Modifier
                         .padding(5.dp)
@@ -95,22 +99,23 @@ fun AttendeesScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = selectedOption, fontWeight = FontWeight.Bold)
-                        Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown arrow")
+                        Text(text = selectedRole, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown arrow")
                     }
 
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        items.forEach { label ->
+                        roles.forEach { role ->
                             DropdownMenuItem(
-                                text = { Text(label) },
+                                text = { Text(role) },
                                 onClick = {
-                                    selectedOption = label
+                                    viewModel.selectRole(role)
                                     expanded = false
                                 }
                             )
                         }
                     }
                 }
+
             }
 
             Spacer(modifier = Modifier.height(10.dp))
