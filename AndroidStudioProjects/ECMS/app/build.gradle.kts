@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.darwin.ecms"
+    namespace = "com.batman.ecms"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.darwin.ecms"
+        applicationId = "com.batman.ecms"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
