@@ -21,6 +21,7 @@ fun UserDtoItem.toUserData():UserData{
         autoId = auto_id,
         position = position,
         company = company,
-        imgUrl = image_url
+        imgUrl = image_url,
+        id = id
     )
 }

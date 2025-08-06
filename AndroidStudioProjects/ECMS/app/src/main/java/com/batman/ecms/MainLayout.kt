@@ -37,6 +37,7 @@ import com.batman.ecms.features.main.presentation.screens.EventInfoScreen
 import com.batman.ecms.features.main.presentation.screens.HomeScreen
 import com.batman.ecms.features.main.presentation.components.MainTopAppBar
 import com.batman.ecms.features.main.presentation.screens.ActivityCheckInScreen
+import com.batman.ecms.features.main.presentation.screens.AttendeeCheckInScreen
 import com.batman.ecms.features.main.presentation.screens.StaffScreen
 import com.batman.ecms.features.main.presentation.screens.AttendeesScreen
 import com.batman.ecms.features.main.presentation.screens.ScanAttendeeScreen
@@ -63,6 +64,10 @@ sealed class Screen(val route: String) {
 
     object ActivityCheckIn : Screen("activity_check_in/{activityId}") {
         fun withId(id: String) = "activity_check_in/$id"
+    }
+
+    object AttendeeCheckIn : Screen("attendee_check_in/{attendeeId}") {
+        fun withId(id: String) = "attendee_check_in/$id"
     }
 }
 
@@ -108,6 +113,7 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
                 currentRoute?.startsWith(Screen.Attendees.route) == true -> MainTopAppBar(title = "Attendees")
                 currentRoute?.startsWith(Screen.ActivityCheckIn.route) == true -> MainTopAppBar(title = "Attendees")
+                currentRoute?.startsWith(Screen.AttendeeCheckIn.route) == true -> MainTopAppBar(title = "Attendees")
                 else -> {}
             }
         },
@@ -154,7 +160,7 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                         navController.navigate(Screen.Attendees.withId(eventId))
                     },
                     navigateToStaffInfo = {
-                        //todo
+
                     }
                 )
             }
@@ -182,7 +188,12 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
                 arguments = listOf(navArgument("eventId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId")
-                AttendeesScreen(eventId = eventId.toString())
+                AttendeesScreen(
+                    eventId = eventId.toString(),
+                    onClickCheckInLogs = {userId->
+                        navController.navigate(Screen.AttendeeCheckIn.withId(userId))
+                    },
+                )
             }
             composable(
                 route = Screen.ScanAttendee.route,
@@ -197,6 +208,13 @@ fun MainLayout(user: UserData, onSignOut: () -> Unit) {
             ) { backStackEntry ->
                 val activityId = backStackEntry.arguments?.getString("activityId")
                 ActivityCheckInScreen(activityId = activityId.toString())
+            }
+            composable(
+                route = Screen.AttendeeCheckIn.route,
+                arguments = listOf(navArgument("attendeeId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val attendeeId = backStackEntry.arguments?.getString("attendeeId")
+                AttendeeCheckInScreen(activityId = attendeeId.toString())
             }
         }
     }

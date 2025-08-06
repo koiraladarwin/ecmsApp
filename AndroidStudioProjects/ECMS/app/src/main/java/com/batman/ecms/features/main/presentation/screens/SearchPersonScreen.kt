@@ -18,6 +18,7 @@ fun StaffScreen() {
             position = "Executive",
             company = "OCS Business Solution",
             imageUrl = "https://randomuser.me/api/portraits/men/32.jpg",
+            onClickLogs = {},
         )
         Spacer(modifier = Modifier.size(10.dp))
         PersonInfoCard(
@@ -26,6 +27,7 @@ fun StaffScreen() {
             position = "Executive",
             company = "OCS Business Solution",
             imageUrl = "https://randomuser.me/api/portraits/men/30.jpg",
+            onClickLogs = {},
         )
     }
 }

@@ -12,6 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +37,8 @@ fun PersonInfoCard(
     position: String,
     company: String,
     imageUrl: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickLogs:()->Unit
 ) {
     Box(
         modifier = modifier
@@ -98,6 +104,14 @@ fun PersonInfoCard(
                     text = company,
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+            Column {
+                IconButton(onClick = onClickLogs){
+                    Icon(Icons.Default.AccountBox, contentDescription = "Logs")
+                }
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.Share, contentDescription = "Share")
+                }
             }
         }
     }

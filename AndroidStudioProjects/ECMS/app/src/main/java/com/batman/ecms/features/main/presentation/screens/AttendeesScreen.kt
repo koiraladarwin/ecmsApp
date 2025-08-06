@@ -48,6 +48,7 @@ import com.batman.ecms.features.main.presentation.viewModels.AttendeesViewModel
 @Composable
 fun AttendeesScreen(
     eventId: String,
+    onClickCheckInLogs:(String)->Unit,
     viewModel: AttendeesViewModel = viewModel()
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -137,7 +138,10 @@ fun AttendeesScreen(
                                 code = "${user.role}-${user.autoId}",
                                 position = user.position,
                                 company = user.company,
-                                imageUrl = user.imgUrl
+                                imageUrl = user.imgUrl,
+                                onClickLogs = {
+                                        onClickCheckInLogs(user.id)
+                                }
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                         }

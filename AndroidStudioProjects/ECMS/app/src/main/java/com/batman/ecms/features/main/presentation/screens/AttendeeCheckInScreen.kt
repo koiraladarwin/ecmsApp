@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
 import com.batman.ecms.features.main.presentation.components.ScannedTicketList
-import com.batman.ecms.features.main.presentation.viewModels.ActivityCheckInViewModel
+import com.batman.ecms.features.main.presentation.viewModels.AttendeeCheckInViewModel
 
 @Composable
-fun ActivityCheckInScreen(
+fun AttendeeCheckInScreen(
     activityId: String,
-    viewModel: ActivityCheckInViewModel = viewModel()
+    viewModel: AttendeeCheckInViewModel = viewModel()
 ) {
     val state = viewModel.state.collectAsState()
     LaunchedEffect(Unit) {
@@ -36,6 +36,7 @@ fun ActivityCheckInScreen(
                 CircularProgressIndicator()
             }
             return
+
         }
 
         is UiState.Success -> {

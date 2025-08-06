@@ -1,5 +1,6 @@
 package com.batman.ecms.features.main.data.service
 
+import com.batman.ecms.features.main.data.dto.CheckInDto
 import retrofit2.Response
 import com.batman.ecms.features.main.data.dto.CheckInRequest
 import com.batman.ecms.features.main.data.dto.EventInfoDto
@@ -37,9 +38,15 @@ interface ApiService {
         @Body checkInRequest: CheckInRequest
     ): Response<CheckInRequest>
 
-    @POST("activitycheckins/{activity_id)")
+    @GET("activitycheckins/{activity_id}")
     suspend fun getCheckInByActivity(
         @Header("Authorization") token: String,
         @Path("activity_id") activityId: String
-    ): Response<CheckInRequest>
+    ): CheckInDto
+
+    @GET("attendeecheckins/{attendee_id}")
+    suspend fun getCheckInByAttendee(
+        @Header("Authorization") token: String,
+        @Path("attendee_id") attendeeId: String
+    ): Response<CheckInDto?>
 }
