@@ -1,0 +1,199 @@
+package com.batman.ecms.features.main.presentation.components
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+
+@Composable
+fun StaffInfo(
+    name: String,
+    email: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier,
+    canSeeAttendee: Boolean,
+    canAddAttendee: Boolean,
+    canSeeScanned: Boolean,
+    onSave: (Boolean, Boolean, Boolean) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .height(100.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clickable { showDialog = true }
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .height(400.dp)
+                    .width(4.dp)
+                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Profile",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                }
+
+                Text(
+                    text = email,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+
+        }
+    }
+
+    if (showDialog) {
+        PersonDetailDialog(
+            name = name,
+            email ="darwinkoirala123@gmail.com" ,
+            onDismiss = { showDialog = false },
+            onSave = {  check1, check2, check3 ->
+                onSave(check1,check2,check3)
+                showDialog = false
+            },
+            canSeeAttendee = canSeeAttendee,
+            canAddAttendee = canAddAttendee,
+            canSeeScanned = canSeeScanned
+        )
+    }
+}
+
+@Composable
+fun PersonDetailDialog(
+    name: String,
+    email: String,
+    onDismiss: () -> Unit,
+    canSeeAttendee: Boolean,
+    canAddAttendee: Boolean,
+    canSeeScanned: Boolean,
+    onSave: (
+        Boolean,
+        Boolean,
+        Boolean,
+    ) -> Unit
+) {
+    var newName by remember { mutableStateOf(name) }
+    var newEmail by remember { mutableStateOf(email) }
+
+    var canSeeScannedState by remember { mutableStateOf(canSeeScanned) }
+    var canAddAttendeeState by remember { mutableStateOf(canAddAttendee) }
+    var canSeeAttendeeState by remember { mutableStateOf(canSeeAttendee) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onSave( canSeeScannedState, canAddAttendeeState, canSeeAttendeeState)
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        title = {
+            Text("Edit Person Details")
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text("Name") },
+                    enabled = false
+                )
+                OutlinedTextField(
+                    value = newEmail,
+                    onValueChange = { newEmail = it },
+                    label = { Text("Company") },
+                    enabled = false
+                )
+
+                // Checkboxes
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = canSeeScannedState, onCheckedChange = { canSeeScannedState = it })
+                    Text("Can See Scanned")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = canAddAttendeeState, onCheckedChange = { canAddAttendeeState = it })
+                    Text("Can Add Attendee")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = canSeeAttendeeState, onCheckedChange = { canSeeAttendeeState = it })
+                    Text("Can See Attendee")
+                }
+
+            }
+        }
+    )
+}
+

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "330344706464",
+    "project_id": "ecms-9425e",
+    "storage_bucket": "ecms-9425e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:330344706464:android:b71e4329a3c7b5cba3f4c5",
+        "android_client_info": {
+          "package_name": "com.batman.ecms"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "330344706464-8vid0idd7j477mvj0o4tjf11n586ot9d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.batman.ecms",
+            "certificate_hash": "2f00ee44dc8afc122ab3ece80314d85b25d00046"
+          }
+        },
+        {
+          "client_id": "330344706464-nnurspk8bk3sq4gcud19pv4cmo8edceu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC72QZCpN4AGHcr-yV3u0iz2k2lJy8is-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "330344706464-nnurspk8bk3sq4gcud19pv4cmo8edceu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
