@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,7 +26,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.batman.ecms.features.auth.UserData
 import com.batman.ecms.features.main.presentation.screens.EventInfoScreen
 import com.batman.ecms.features.main.presentation.screens.HomeScreen
 import com.batman.ecms.features.main.presentation.components.MainTopAppBar
@@ -36,12 +34,12 @@ import com.batman.ecms.features.main.presentation.screens.AttendeeCheckInScreen
 import com.batman.ecms.features.main.presentation.screens.StaffScreen
 import com.batman.ecms.features.main.presentation.screens.AttendeesScreen
 import com.batman.ecms.features.main.presentation.screens.ScanAttendeeScreen
+import com.batman.ecms.features.main.presentation.screens.VerifyScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Notifications : Screen("alert")
     object Settings : Screen("settings")
-    object Profile : Screen("profile")
     object Verify : Screen("verify")
 
     object EventInfo : Screen("event_info/{eventId}") {
@@ -73,8 +71,7 @@ val bottomBarRoutes = listOf(
     Screen.Home.route,
     Screen.Verify.route,
     Screen.Notifications.route,
-    Screen.Settings.route,
-    Screen.Profile.route
+    Screen.Settings.route
 )
 
 
@@ -94,8 +91,7 @@ fun MainLayout(onSignOut: () -> Unit) {
                 currentRoute == Screen.Home.route -> MainTopAppBar(title = "Home")
                 currentRoute == Screen.Staff.route -> MainTopAppBar(title = "Staff")
                 currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
-                currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
-                currentRoute == Screen.Profile.route -> MainTopAppBar(title = "Profile")
+                currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Profile")
                 currentRoute == Screen.Verify.route -> MainTopAppBar(title = "Verify")
                 currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
                 currentRoute?.startsWith(Screen.Attendees.route) == true -> MainTopAppBar(title = "Attendees")
@@ -157,9 +153,8 @@ fun MainLayout(onSignOut: () -> Unit) {
                 StaffScreen(eventId = eventId.toString())
             }
             composable(Screen.Notifications.route) { NotificationsScreen() }
-            composable(Screen.Settings.route) { SettingsScreen() }
             composable(Screen.Verify.route) { VerifyScreen() }
-            composable(Screen.Profile.route) { ProfileScreen(onSignOut) }
+            composable(Screen.Settings.route) { Settings2Screen(onSignOut) }
             composable(
                 route = Screen.EventInfo.route,
                 arguments = listOf(navArgument("eventId") { type = NavType.StringType })
@@ -218,8 +213,7 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
         Screen.Home,
         Screen.Verify,
         Screen.Notifications,
-        Screen.Settings,
-        Screen.Profile
+        Screen.Settings
     )
 
     NavigationBar {
@@ -231,8 +225,7 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
                             is Screen.Home -> Icons.Default.Home
                             is Screen.Verify -> Icons.Default.AccountBox
                             is Screen.Notifications -> Icons.Default.Notifications
-                            is Screen.Settings -> Icons.Default.Settings
-                            is Screen.Profile -> Icons.Default.Person
+                            is Screen.Settings -> Icons.Default.Person
                             else -> Icons.Default.Clear
                         },
                         contentDescription = screen.route
@@ -255,7 +248,7 @@ fun NotificationsScreen() {
 }
 
 @Composable
-fun ProfileScreen(onSignOut: () -> Unit) {
+fun Settings2Screen(onSignOut: () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(onClick = onSignOut) {
             Text("Sign Out")
@@ -267,12 +260,5 @@ fun ProfileScreen(onSignOut: () -> Unit) {
 fun SettingsScreen() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Settings Screen")
-    }
-}
-
-@Composable
-fun VerifyScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Verify Qr Screen")
     }
 }

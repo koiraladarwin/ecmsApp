@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,21 +21,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +56,8 @@ import com.batman.ecms.features.main.presentation.components.PersonInfoCard
 import com.batman.ecms.features.main.presentation.viewModels.AttendeesViewModel
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
@@ -57,7 +65,7 @@ import java.io.FileOutputStream
 @Composable
 fun AttendeesScreen(
     eventId: String,
-    onClickCheckInLogs:(String)->Unit,
+    onClickCheckInLogs: (String) -> Unit,
     viewModel: AttendeesViewModel = viewModel()
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -68,6 +76,14 @@ fun AttendeesScreen(
     val roles by viewModel.roles.collectAsState()
     val selectedRole by viewModel.selectedRole.collectAsState()
     val context = LocalContext.current
+
+    val coroutineScope = rememberCoroutineScope()
+    var showAddDialog by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf("") }
+    var company by remember { mutableStateOf("") }
+    var position by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf("") }
+    var addingUser by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.fetchUsers(eventId)
     }
@@ -75,7 +91,7 @@ fun AttendeesScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                // Add FAB action here
+                showAddDialog = true
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Attendees")
             }
@@ -149,7 +165,7 @@ fun AttendeesScreen(
                                 company = user.company,
                                 imageUrl = user.imgUrl,
                                 onClickLogs = {
-                                        onClickCheckInLogs(user.id)
+                                    onClickCheckInLogs(user.id)
                                 },
                                 onShareClick = {
                                     try {
@@ -167,7 +183,11 @@ fun AttendeesScreen(
                                         cachePath.mkdirs()
                                         val file = File(cachePath, "qr_${user.id}.png")
                                         val fileOutputStream = FileOutputStream(file)
-                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+                                        bitmap.compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            100,
+                                            fileOutputStream
+                                        )
                                         fileOutputStream.close()
 
                                         // 3. Get content URI
@@ -179,7 +199,6 @@ fun AttendeesScreen(
 
                                         // 4. Share to All Photo Accepting App
 
-
                                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                             type = "image/png"
                                             putExtra(Intent.EXTRA_STREAM, uri)
@@ -187,9 +206,12 @@ fun AttendeesScreen(
                                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
 
-                                        context.startActivity(Intent.createChooser(shareIntent, "Share image via"))
-
-
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                "Share image via"
+                                            )
+                                        )
 
                                     } catch (e: Exception) {
                                         e.printStackTrace()
@@ -204,5 +226,83 @@ fun AttendeesScreen(
 
             }
         }
+    }
+    if (showAddDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            title = { Text("Add Attendee") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Full Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !addingUser
+                    )
+                    OutlinedTextField(
+                        value = company,
+                        onValueChange = { company = it },
+                        label = { Text("Company") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !addingUser
+                    )
+                    OutlinedTextField(
+                        value = position,
+                        onValueChange = { position = it },
+                        label = { Text("Position") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !addingUser
+                    )
+
+                    OutlinedTextField(
+                        value = role,
+                        onValueChange = { role = it },
+                        label = { Text("Role") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = !addingUser
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = !addingUser, onClick = {
+                    coroutineScope.launch {
+                        addingUser = true
+                        val result = viewModel.addAttendee(
+                            name = name,
+                            company = company,
+                            position = position,
+                            role = role,
+                            eventId = eventId
+                        )
+                        if (result == null) {
+                            Toast.makeText(
+                                context,
+                                "Attendee added successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            viewModel.fetchUsers(eventId)
+                        } else {
+                            Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
+                        }
+
+                        showAddDialog = false
+                        name = ""
+                        company = ""
+                        position = ""
+                        role = ""
+                        addingUser = false
+                    }
+                }) {
+                    Text("Add")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

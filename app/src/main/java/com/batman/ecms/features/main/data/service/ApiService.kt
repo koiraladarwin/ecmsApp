@@ -8,6 +8,7 @@ import com.batman.ecms.features.main.data.dto.EventInfoDto
 import com.batman.ecms.features.main.data.dto.EventsDataDto
 import com.batman.ecms.features.main.data.dto.StaffDto
 import com.batman.ecms.features.main.data.dto.UserDto
+import com.batman.ecms.features.main.data.dto.UserRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -70,4 +71,9 @@ interface ApiService {
         @Path("event_id") eventId: String
     ): Response<List<StaffDto>>
 
+    @POST("user")
+    suspend fun addUser(
+        @Header("Authorization") token: String,
+        @Body user: UserRequest
+    ): Response<Unit>
 }

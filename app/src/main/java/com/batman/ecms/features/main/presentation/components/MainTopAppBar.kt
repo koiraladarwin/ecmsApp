@@ -41,6 +41,5 @@ fun MainTopAppBar(title:String) {
             titleContentColor = MaterialTheme.colorScheme.onPrimary
         ),
         modifier = Modifier
-            .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
     )
 }

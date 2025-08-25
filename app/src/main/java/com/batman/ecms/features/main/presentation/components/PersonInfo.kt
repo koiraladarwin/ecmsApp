@@ -1,5 +1,6 @@
 package com.batman.ecms.features.main.presentation.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,10 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-
+import com.batman.ecms.R
 
 @Composable
 fun PersonInfoCard(
@@ -38,8 +40,8 @@ fun PersonInfoCard(
     company: String,
     imageUrl: String,
     modifier: Modifier = Modifier,
-    onClickLogs:()->Unit,
-    onShareClick:()->Unit,
+    onClickLogs: () -> Unit,
+    onShareClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -69,7 +71,9 @@ fun PersonInfoCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                placeholder = painterResource(id = R.drawable.placeholder),
+                error = painterResource(id = R.drawable.placeholder)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -107,7 +111,7 @@ fun PersonInfoCard(
                 )
             }
             Column {
-                IconButton(onClick = onClickLogs){
+                IconButton(onClick = onClickLogs) {
                     Icon(Icons.Default.AccountBox, contentDescription = "Logs")
                 }
                 IconButton(onClick = onShareClick) {

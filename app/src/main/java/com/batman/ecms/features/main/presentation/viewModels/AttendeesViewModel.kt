@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.batman.ecms.AuthUserObject
 import com.batman.ecms.UiState
 import com.batman.ecms.features.common.constants.MessageConst
+import com.batman.ecms.features.main.data.dto.UserRequest
 import com.batman.ecms.features.main.data.dto.toUserData
 import com.batman.ecms.features.main.data.service.RetrofitInstance
 import com.batman.ecms.features.main.domain.models.UserData
@@ -93,9 +94,38 @@ class AttendeesViewModel : ViewModel() {
         }
     }
 
-
     fun enterKeys(text: String) {
         _text.value = text
+    }
+
+    suspend fun addAttendee(
+        name: String,
+        company: String,
+        position: String,
+        role: String,
+        eventId: String
+    ): String? {
+        return try {
+            val token = AuthUserObject.getJwt()
+            val response = RetrofitInstance.apiService.addUser(
+                token = token, user = UserRequest(
+                    full_name = name,
+                    company = company,
+                    position = position,
+                    image_url = "",
+                    event_id = eventId,
+                    role = role
+                )
+            )
+            when (response.code()) {
+                201 -> null
+                else -> MessageConst.SERVERERROR
+            }
+        } catch (e: IOException) {
+            MessageConst.NOINTERNET
+        } catch (e: Exception) {
+            MessageConst.UNKNOWN
+        }
     }
 
 }
