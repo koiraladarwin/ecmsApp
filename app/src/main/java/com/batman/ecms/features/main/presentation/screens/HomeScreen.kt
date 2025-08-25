@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.AuthUserObject
 import com.batman.ecms.Screen
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.features.main.data.service.RetrofitInstance
 import com.batman.ecms.features.main.presentation.components.AddEventDialog
 import com.batman.ecms.features.main.presentation.components.EventCard
@@ -69,9 +70,7 @@ fun HomeScreen(
 
         when (val state = uiState.value) {
             is UiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                    CircularProgressIndicator()
-                }
+                CustomLoader()
                 return@Scaffold
             }
 

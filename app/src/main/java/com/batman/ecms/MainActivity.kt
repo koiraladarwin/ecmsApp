@@ -5,10 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.IntentSenderRequest.*
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.lifecycle.lifecycleScope
@@ -20,11 +22,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.batman.ecms.features.auth.AuthScreen
 import com.batman.ecms.features.auth.AuthState
 import com.batman.ecms.features.auth.AuthViewModel
 import com.batman.ecms.features.auth.UserData
+import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.ui.theme.EcmsTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,41 +49,47 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             EcmsTheme {
-                var stateLoaded by remember { mutableStateOf(false) }
-                var signedIn by remember { mutableStateOf<UserData?>(null) }
-
                 val authState by authViewModel.authState.collectAsState()
-                val currentAuthState by rememberUpdatedState(authState)
 
-                LaunchedEffect(currentAuthState) {
-                    signedIn = if (currentAuthState is AuthState.Success) {
-                        (currentAuthState as AuthState.Success).user
-                    } else null
-                    stateLoaded = true
-                }
-
-                when {
-                    !stateLoaded -> {
+                when (authState) {
+                    is AuthState.Loading -> {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(MaterialTheme.colorScheme.background),
+                              contentAlignment = Alignment.Center
                         ) {
+                            CustomLoader()
                         }
                     }
 
-                    signedIn != null -> {
+                    is AuthState.Success -> {
                         MainLayout(onSignOut = { authViewModel.signOut() })
                     }
 
-                    else -> {
+                    is AuthState.Error -> {
                         AuthScreen(
                             authViewModel = authViewModel,
                             onStartSignIn = {
                                 lifecycleScope.launch {
                                     val intentSender = authViewModel.beginSignIn()
                                     intentSender?.let {
-                                        val request = IntentSenderRequest.Builder(it).build()
+                                        val request = Builder(it).build()
+                                        signInLauncher.launch(request)
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    AuthState.Idle -> {
+                        AuthScreen(
+                            authViewModel = authViewModel,
+                            onStartSignIn = {
+                                lifecycleScope.launch {
+                                    val intentSender = authViewModel.beginSignIn()
+                                    intentSender?.let {
+                                        val request = Builder(it).build()
                                         signInLauncher.launch(request)
                                     }
                                 }

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.features.main.domain.models.StaffMemberData
 import com.batman.ecms.features.main.domain.models.StaffScreenData
 import com.batman.ecms.features.main.presentation.components.StaffInfo
@@ -45,9 +46,7 @@ fun StaffScreen(
     val state = viewModel.state.collectAsState()
     when (val value = state.value) {
         is UiState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            CustomLoader()
         }
 
         is UiState.Error -> {

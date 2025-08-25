@@ -119,6 +119,7 @@ class AttendeesViewModel : ViewModel() {
             )
             when (response.code()) {
                 201 -> null
+                401-> MessageConst.ACESSDENIED
                 else -> MessageConst.SERVERERROR
             }
         } catch (e: IOException) {

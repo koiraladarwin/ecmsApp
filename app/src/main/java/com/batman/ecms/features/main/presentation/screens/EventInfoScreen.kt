@@ -1,6 +1,9 @@
 package com.batman.ecms.features.main.presentation.screens
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,28 +28,40 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.features.main.domain.models.EventInfoData
 import com.batman.ecms.features.main.presentation.components.ActivityStats
 import com.batman.ecms.features.main.presentation.components.StatRow
 import com.batman.ecms.features.main.presentation.viewModels.EventInfoViewModel
+import kotlinx.coroutines.launch
+import java.time.Instant
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EventInfoScreen(
@@ -54,14 +70,25 @@ fun EventInfoScreen(
     navigateToScan: (String) -> Unit,
     navigateToActivityCheckIn: (String) -> Unit,
 ) {
+
+    val state = viewModel.state.collectAsState()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    var name by remember { mutableStateOf("") }
+    var type by remember { mutableStateOf("") }
+    var startTime by remember { mutableStateOf("") }
+    var endTime by remember { mutableStateOf("") }
+
     LaunchedEffect(eventId) {
         viewModel.loadEventInfo(eventId.toString())
     }
-    val state = viewModel.state.collectAsState()
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
-
+                showAddDialog = true
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
@@ -76,9 +103,7 @@ fun EventInfoScreen(
             }
 
             UiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                CustomLoader()
                 return@Scaffold
             }
 
@@ -175,6 +200,75 @@ fun EventInfoScreen(
             }
         }
 
+    }
+    if (showAddDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            title = { Text("Add Activity") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Activity Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = type,
+                        onValueChange = { type = it },
+                        label = { Text("Type") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = startTime,
+                        onValueChange = { startTime = it },
+                        label = { Text("Start Time (ISO 8601)") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = endTime,
+                        onValueChange = { endTime = it },
+                        label = { Text("End Time (ISO 8601)") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        try {
+                            val result = viewModel.addActivity(
+                                name = name,
+                                type = type,
+                                startTime = Instant.parse(startTime),
+                                endTime = Instant.parse(endTime),
+                                eventId = eventId.toString()
+                            )
+                            if (result == null) {
+                                Toast.makeText(context, "Activity added successfully", Toast.LENGTH_SHORT).show()
+                                viewModel.loadEventInfo(eventId.toString())
+                            } else {
+                                Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Invalid date format", Toast.LENGTH_SHORT).show()
+                        }
+                        showAddDialog = false
+                        name = ""
+                        type = ""
+                        startTime = ""
+                        endTime = ""
+                    }
+                }) {
+                    Text("Add")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 

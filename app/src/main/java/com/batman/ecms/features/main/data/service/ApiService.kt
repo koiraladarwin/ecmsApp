@@ -5,6 +5,7 @@ import retrofit2.Response
 import com.batman.ecms.features.main.data.dto.CheckInRequest
 import com.batman.ecms.features.main.data.dto.EditRoleDto
 import com.batman.ecms.features.main.data.dto.EventInfoDto
+import com.batman.ecms.features.main.data.dto.ActivityRequest
 import com.batman.ecms.features.main.data.dto.EventsDataDto
 import com.batman.ecms.features.main.data.dto.StaffDto
 import com.batman.ecms.features.main.data.dto.UserDto
@@ -75,5 +76,11 @@ interface ApiService {
     suspend fun addUser(
         @Header("Authorization") token: String,
         @Body user: UserRequest
+    ): Response<Unit>
+
+    @POST("event")
+    suspend fun addActivity(
+        @Header("Authorization") token: String,
+        @Body user: ActivityRequest
     ): Response<Unit>
 }

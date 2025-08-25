@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.features.main.presentation.components.ScannedTicketList
 import com.batman.ecms.features.main.presentation.viewModels.AttendeeCheckInViewModel
 
@@ -32,9 +33,7 @@ fun AttendeeCheckInScreen(
         }
 
         UiState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            CustomLoader()
             return
 
         }

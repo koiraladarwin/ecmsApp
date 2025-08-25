@@ -52,6 +52,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.features.main.presentation.components.QrScannerView
 import com.batman.ecms.features.main.presentation.viewModels.ScanAttendeeViewModel
 import kotlinx.coroutines.delay
@@ -181,7 +182,7 @@ fun ScanAttendeeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     when (scannedReq) {
-                        is UiState.Loading -> CircularProgressIndicator()
+                        is UiState.Loading -> CustomLoader()
                         is UiState.Success -> SuccessDialogContent()
                         is UiState.Error -> ErrorDialogContent((scannedReq as UiState.Error).message)
                     }
