@@ -42,6 +42,7 @@ fun AttendeeCheckInScreen(
         is UiState.Success -> {
             ScannedTicketList(scannedTickets = value.data)
         }
+
     }
 
 }

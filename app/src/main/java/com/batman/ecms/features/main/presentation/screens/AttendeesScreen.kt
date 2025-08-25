@@ -89,7 +89,7 @@ fun AttendeesScreen(
             ) {
                 OutlinedTextField(
                     value = searchText,
-                    onValueChange = viewModel::type,
+                    onValueChange = viewModel::enterKeys,
                     placeholder = { Text("Search...") },
                     modifier = Modifier.weight(7.5f)
                 )

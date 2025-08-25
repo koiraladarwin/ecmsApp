@@ -26,19 +26,13 @@ class EventInfoViewModel : ViewModel() {
                     token = token
                 )
                 when (response.code()) {
-                    200 -> {
-                        _state.value = UiState.Success(response.body()!!.toEventData())
-                    }
-                    500 -> {
-                        _state.value = UiState.Error(MessageConst.SERVERERROR)
-                    }
-                    else -> {
-                        _state.value = UiState.Error(MessageConst.UNKNOWN)
-                    }
+                    200 -> _state.value = UiState.Success(response.body()!!.toEventData())
+                    500 -> _state.value = UiState.Error(MessageConst.SERVERERROR)
+                    else -> _state.value = UiState.Error(MessageConst.UNKNOWN)
                 }
             } catch (e: IOException) {
                 _state.value = UiState.Error(MessageConst.NOINTERNET)
-            }catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = UiState.Error(MessageConst.UNKNOWN)
             }
         }

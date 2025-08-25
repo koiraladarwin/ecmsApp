@@ -41,6 +41,7 @@ fun ActivityCheckInScreen(
         is UiState.Success -> {
             ScannedTicketList(scannedTickets = value.data)
         }
+
     }
 
 }

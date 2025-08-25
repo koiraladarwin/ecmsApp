@@ -43,13 +43,8 @@ class HomeViewModel : ViewModel() {
                 val response =
                     RetrofitInstance.apiService.getEvents(token = token)
                 when (response.code()) {
-                    200 -> {
-                        Log.d("batmanboxer",response.body().toString())
-                        _events.value = UiState.Success(response.body()!!.map { it.toEventData() })
-                    }
-                    500->{
-                        _events.value = UiState.Error(MessageConst.SERVERERROR)
-                    }
+                    200 -> _events.value = UiState.Success(response.body().orEmpty().map { it.toEventData() })
+                    500-> _events.value = UiState.Error(MessageConst.SERVERERROR)
                     else -> _events.value = UiState.Error(MessageConst.UNKNOWN)
                 }
             } catch (e: IOException) {

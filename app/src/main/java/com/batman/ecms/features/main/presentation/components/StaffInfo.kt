@@ -14,13 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -33,10 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 
 @Composable
@@ -48,7 +44,8 @@ fun StaffInfo(
     canSeeAttendee: Boolean,
     canAddAttendee: Boolean,
     canSeeScanned: Boolean,
-    onSave: (Boolean, Boolean, Boolean) -> Unit
+    isModifying: Boolean,
+    onSave: (Boolean, Boolean, Boolean) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -57,11 +54,9 @@ fun StaffInfo(
             .height(100.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .clickable { showDialog = true }
-    ) {
+            .clickable { showDialog = true }) {
         Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
@@ -101,8 +96,7 @@ fun StaffInfo(
                 }
 
                 Text(
-                    text = email,
-                    style = MaterialTheme.typography.bodySmall
+                    text = email, style = MaterialTheme.typography.bodySmall
                 )
             }
 
@@ -111,29 +105,31 @@ fun StaffInfo(
     }
 
     if (showDialog) {
-        PersonDetailDialog(
+        StaffDetailDialog(
             name = name,
-            email = "darwinkoirala123@gmail.com",
+            email = email,
             onDismiss = { showDialog = false },
             onSave = { canSeeAttendee, canAddAttendee, canSeeScanned ->
                 onSave(canSeeAttendee, canAddAttendee, canSeeScanned)
-                showDialog = false
             },
             canSeeAttendee = canSeeAttendee,
             canAddAttendee = canAddAttendee,
-            canSeeScanned = canSeeScanned
+            canSeeScanned = canSeeScanned,
+            isModifying = isModifying
         )
     }
+
 }
 
 @Composable
-fun PersonDetailDialog(
+fun StaffDetailDialog(
     name: String,
     email: String,
     onDismiss: () -> Unit,
     canSeeAttendee: Boolean,
     canAddAttendee: Boolean,
     canSeeScanned: Boolean,
+    isModifying: Boolean,
     onSave: (
         Boolean,
         Boolean,
@@ -147,24 +143,25 @@ fun PersonDetailDialog(
     var canAddAttendeeState by remember { mutableStateOf(canAddAttendee) }
     var canSeeAttendeeState by remember { mutableStateOf(canSeeAttendee) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onSave(canSeeScannedState, canAddAttendeeState, canSeeAttendeeState)
-            }) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-        title = {
-            Text("Edit Person Details")
-        },
-        text = {
+    AlertDialog(onDismissRequest = {
+       if(!isModifying){
+           onDismiss()
+       }
+    }, confirmButton = {
+        TextButton(enabled = !isModifying, onClick = {
+            onSave(canSeeScannedState, canAddAttendeeState, canSeeAttendeeState)
+        }) {
+            Text("Save")
+        }
+
+    }, dismissButton = {
+        TextButton(enabled = !isModifying,onClick = onDismiss) {
+            Text("Cancel")
+        }
+    }, title = {
+        Text("Edit Person Details")
+    }, text = {
+        Box(contentAlignment = Alignment.Center) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = newName,
@@ -183,24 +180,35 @@ fun PersonDetailDialog(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = canSeeScannedState,
-                        onCheckedChange = { canSeeScannedState = it })
+                        onCheckedChange = { canSeeScannedState = it },
+                        enabled = !isModifying
+                    )
                     Text("Can See Scanned")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = canAddAttendeeState,
-                        onCheckedChange = { canAddAttendeeState = it })
+                        onCheckedChange = { canAddAttendeeState = it },
+                        enabled = !isModifying
+                    )
                     Text("Can Add Attendee")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = canSeeAttendeeState,
-                        onCheckedChange = { canSeeAttendeeState = it })
+                        onCheckedChange = { canSeeAttendeeState = it },
+                        enabled = !isModifying
+                    )
                     Text("Can See Attendee")
                 }
 
             }
+            if (isModifying) {
+                Box(modifier = Modifier.zIndex(1f)) {
+                    CircularProgressIndicator()
+                }
+            }
         }
-    )
+    })
 }
 

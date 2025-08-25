@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.batman.ecms.AuthUserObject
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.constants.MessageConst
 import com.batman.ecms.features.main.data.dto.toUserData
 import com.batman.ecms.features.main.data.service.RetrofitInstance
 import com.batman.ecms.features.main.domain.models.UserData
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class AttendeesViewModel : ViewModel() {
     private var attendeesList: List<UserData> = emptyList()
@@ -35,7 +37,6 @@ class AttendeesViewModel : ViewModel() {
     fun selectRole(role: String) {
         _selectedRole.value = role
     }
-
 
     init {
         viewModelScope.launch {
@@ -73,20 +74,27 @@ class AttendeesViewModel : ViewModel() {
                     eventId = eventId,
                     token = token
                 )
-                val data = response.map { it.toUserData() }
-                attendeesList = data
-                _state.value = UiState.Success(data)
+                when (response.code()) {
+                    200 -> {
+                        val data = response.body().orEmpty().map { it.toUserData() }
+                        attendeesList = data
+                        _state.value = UiState.Success(data)
+                        val uniqueRoles = data.map { it.role }.toSet().toList().sorted()
+                        _roles.value = listOf("ALL") + uniqueRoles
+                    }
 
-                val uniqueRoles = data.map { it.role }.toSet().toList().sorted()
-                _roles.value = listOf("ALL") + uniqueRoles
+                    else -> _state.value = UiState.Error(MessageConst.SERVERERROR)
+                }
+            } catch (e: IOException) {
+                _state.value = UiState.Error(MessageConst.NOINTERNET)
             } catch (e: Exception) {
-                _state.value = UiState.Error(e.message ?: "Unknown Error")
+                _state.value = UiState.Error(MessageConst.UNKNOWN)
             }
         }
     }
 
 
-    fun type(text: String) {
+    fun enterKeys(text: String) {
         _text.value = text
     }
 

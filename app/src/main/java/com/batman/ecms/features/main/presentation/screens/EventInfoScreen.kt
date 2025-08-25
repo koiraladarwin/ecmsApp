@@ -41,6 +41,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.batman.ecms.UiState
 import com.batman.ecms.features.main.domain.models.EventInfoData
+import com.batman.ecms.features.main.presentation.components.ActivityStats
+import com.batman.ecms.features.main.presentation.components.StatRow
 import com.batman.ecms.features.main.presentation.viewModels.EventInfoViewModel
 
 
@@ -176,117 +178,3 @@ fun EventInfoScreen(
     }
 }
 
-@Composable
-fun ActivityStats(
-    title: String,
-    startTime: String,
-    endTime: String,
-    totalGuests: Int,
-    scannedGuests: Int,
-    onClick: () -> Unit,
-    onScanClicked: () -> Unit,
-) {
-    val progress = if (totalGuests > 0) scannedGuests / totalGuests.toFloat() else 0f
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = title,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "$startTime · $endTime",
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(4.dp)),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = Color(0xFFE0E0E0)
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Scanned $scannedGuests / $totalGuests Guests",
-            fontSize = 12.sp,
-            color = Color.DarkGray
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            StatCard(
-                label = "Total",
-                value = totalGuests.toString(),
-                modifier = Modifier.weight(1f),
-                onClick = {}
-            )
-            StatCard(
-                label = "Scanned",
-                value = scannedGuests.toString(),
-                modifier = Modifier.weight(1f),
-                onClick = onScanClicked
-            )
-        }
-    }
-}
-
-@Composable
-fun StatRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainer),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label)
-        Text(value, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-fun StatCard(label: String, value: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = modifier.clickable(onClick = onClick)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = label,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Text(
-                text = value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}

@@ -1,6 +1,6 @@
 package com.batman.ecms.features.main.domain.models
 
-data class StaffData(
+data class StaffMemberData(
     val firebaseId: String,
     val name: String,
     val email: String,
@@ -8,4 +8,9 @@ data class StaffData(
     val canSeeScanned: Boolean,
     val canAddAttendee: Boolean,
     val canSeeAttendee: Boolean
+)
+
+data class StaffScreenData(
+    val isModifying: Boolean = false,
+    val data: List<StaffMemberData>,
 )

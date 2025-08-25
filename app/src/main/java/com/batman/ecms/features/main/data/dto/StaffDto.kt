@@ -1,6 +1,6 @@
 package com.batman.ecms.features.main.data.dto
 
-import com.batman.ecms.features.main.domain.models.StaffData
+import com.batman.ecms.features.main.domain.models.StaffMemberData
 
 data class StaffDto(
     val firebase_id: String,
@@ -11,8 +11,8 @@ data class StaffDto(
     val can_add_attendee: Boolean,
     val can_see_attendee: Boolean
 )
-fun StaffDto.toStaffData(): StaffData {
-    return StaffData(
+fun StaffDto.toStaffData(): StaffMemberData {
+    return StaffMemberData(
         firebaseId = firebase_id,
         name = name,
         email = email,

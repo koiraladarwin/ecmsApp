@@ -8,7 +8,6 @@ import com.batman.ecms.features.main.data.dto.EventInfoDto
 import com.batman.ecms.features.main.data.dto.EventsDataDto
 import com.batman.ecms.features.main.data.dto.StaffDto
 import com.batman.ecms.features.main.data.dto.UserDto
-import com.batman.ecms.features.main.domain.models.StaffData
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -45,7 +44,7 @@ interface ApiService {
     suspend fun getUsersByEvent(
         @Header("Authorization") token: String,
         @Path("event_id") eventId: String
-    ): UserDto
+    ): Response<UserDto>
 
     @POST("checkins")
     suspend fun createCheckIn(

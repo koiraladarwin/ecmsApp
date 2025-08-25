@@ -21,10 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
-import com.batman.ecms.features.main.domain.models.StaffData
-import com.batman.ecms.features.main.presentation.components.PersonInfoCard
+import com.batman.ecms.features.main.domain.models.StaffMemberData
+import com.batman.ecms.features.main.domain.models.StaffScreenData
 import com.batman.ecms.features.main.presentation.components.StaffInfo
 import com.batman.ecms.features.main.presentation.viewModels.StaffScreenViewModel
 import kotlinx.coroutines.launch
@@ -36,6 +37,7 @@ fun StaffScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.fetchStaffs(eventId)
     }
@@ -54,11 +56,12 @@ fun StaffScreen(
             }
         }
 
-        is UiState.Success<List<StaffData>> -> {
+        is UiState.Success<StaffScreenData> -> {
+
             Column {
                 Box(modifier = Modifier.height(10.dp))
                 LazyColumn(modifier = Modifier.padding(horizontal = 10.dp)) {
-                    items(value.data) {staff->
+                    items(value.data.data) { staff ->
                         StaffInfo(
                             name = staff.name,
                             email = staff.email,
@@ -66,12 +69,12 @@ fun StaffScreen(
                             canSeeScanned = staff.canSeeScanned,
                             canSeeAttendee = staff.canSeeAttendee,
                             canAddAttendee = staff.canAddAttendee,
-                            onSave = { seeAtt, adAtt, seeScan ->
+                            onSave = { seeAtt, addAtt, seeScan ->
                                 coroutineScope.launch {
                                     val ok = viewModel.modifyStaffRole(
                                         firebaseId = staff.firebaseId,
                                         canSeeScanned = seeAtt,
-                                        canAddAttendee = adAtt,
+                                        canAddAttendee = addAtt,
                                         canSeeAttendee = seeScan,
                                         eventId = eventId
                                     )
@@ -83,13 +86,12 @@ fun StaffScreen(
                                     ).show()
                                 }
                             },
+                            isModifying = value.data.isModifying
                         )
                         Spacer(modifier = Modifier.size(10.dp))
                     }
                 }
             }
-
-
         }
     }
 }
