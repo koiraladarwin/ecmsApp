@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.batman.ecms.AuthUserObject
 import com.batman.ecms.UiState
+import com.batman.ecms.features.common.constants.MessageConst
 import com.batman.ecms.features.main.data.dto.toCheckInAttendees
 import com.batman.ecms.features.main.data.service.RetrofitInstance
 import com.batman.ecms.features.main.domain.models.CheckedInAttendees
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class AttendeeCheckInViewModel : ViewModel() {
     private val _state = MutableStateFlow<UiState<List<CheckedInAttendees>>>(UiState.Loading)
@@ -18,33 +20,29 @@ class AttendeeCheckInViewModel : ViewModel() {
 
     fun fetchCheckIns(attendeeId: String) {
         viewModelScope.launch {
-            Log.d("darwinkoirala", "attendeeId:$attendeeId")
             _state.value = UiState.Loading
             try {
-
+                val token = AuthUserObject.getJwt()
                 val response = RetrofitInstance.apiService.getCheckInByAttendee(
-                    "Bearer ${AuthUserObject.jwt}", attendeeId
+                    token = token, attendeeId = attendeeId
                 )
-
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        _state.value = UiState.Success(body.map { it.toCheckInAttendees() })
-                    } else {
-                        _state.value = UiState.Error("No Checkins")
+                when (response.code()) {
+                    200 -> {
+                        _state.value =
+                            UiState.Success(response.body().orEmpty().map { it.toCheckInAttendees() })
                     }
-                } else {
-                    _state.value = UiState.Error("Request failed with code ${response.code()}")
+
+                    500 -> {
+                        _state.value = UiState.Error(MessageConst.SERVERERROR)
+                    }
+
                 }
 
-
+            } catch (e: IOException) {
+                _state.value = UiState.Error(MessageConst.NOINTERNET)
             } catch (e: Exception) {
-                _state.value = UiState.Error(message = e.message.toString())
+                _state.value = UiState.Error(MessageConst.UNKNOWN)
             }
-
         }
-
-
     }
-
 }

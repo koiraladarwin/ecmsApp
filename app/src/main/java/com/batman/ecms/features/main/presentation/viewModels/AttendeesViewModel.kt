@@ -67,10 +67,11 @@ class AttendeesViewModel : ViewModel() {
     fun fetchUsers(eventId: String) {
         viewModelScope.launch {
             _state.value = UiState.Loading
+            val token = AuthUserObject.getJwt()
             try {
                 val response = RetrofitInstance.apiService.getUsersByEvent(
                     eventId = eventId,
-                    token = "Bearer ${AuthUserObject.jwt.toString()}"
+                    token = token
                 )
                 val data = response.map { it.toUserData() }
                 attendeesList = data

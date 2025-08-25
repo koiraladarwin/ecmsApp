@@ -9,10 +9,12 @@ data class EventDto(
     val location: String,
     val name: String,
     val number_of_participant: Int,
+    val number_of_staff: Int,
     val start_time: String,
-    val staff_code:String,
+    val staff_code: String,
 )
-fun EventDto.toEventData(): EventData{
+
+fun EventDto.toEventData(): EventData {
     return EventData(
         id = id,
         name = name,
@@ -20,6 +22,6 @@ fun EventDto.toEventData(): EventData{
         location = location,
         date = start_time,
         attendees = number_of_participant,
-        staffs = 0
+        staffs = number_of_staff,
     )
 }

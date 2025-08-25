@@ -10,6 +10,7 @@ import com.batman.ecms.features.main.data.service.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class ScanAttendeeViewModel : ViewModel() {
 
@@ -25,25 +26,27 @@ class ScanAttendeeViewModel : ViewModel() {
 
     fun scanSuccess(activityId: String, attendeeId: String) {
         viewModelScope.launch {
+            val token = AuthUserObject.getJwt()
             try {
-                Log.d("batmanboxer",attendeeId)
-                Log.d("batmanboxer",activityId)
                 val response = RetrofitInstance.apiService.createCheckIn(
                     checkInRequest = CheckInRequest(
                         attendee_id = attendeeId,
                         activity_id = activityId,
                     ),
-                    token = "Bearer ${AuthUserObject.jwt.toString()}"
+                    token = token
                 )
                 when (response.code()) {
-                201 -> _scannedReq.value = UiState.Success(Unit)
-                400 -> _scannedReq.value = UiState.Error("Bad Input")
-                409 -> _scannedReq.value = UiState.Error("Already Scanned")
-                else -> _scannedReq.value = UiState.Error("Unexpected Error: ${response.code()} Contact Darwin")
-            }
+                    201 -> _scannedReq.value = UiState.Success(Unit)
+                    400 -> _scannedReq.value = UiState.Error("Bad Input")
+                    409 -> _scannedReq.value = UiState.Error("Already Scanned")
+                    else -> _scannedReq.value =
+                        UiState.Error("Unexpected Error: ${response.code()} Contact Darwin")
+                }
 
-            } catch (e: Exception) {
+            } catch (_: IOException) {
                 _scannedReq.value = UiState.Error("Network Issue")
+            } catch (_: Exception) {
+                _scannedReq.value = UiState.Error("Unknown Error")
             }
 
         }

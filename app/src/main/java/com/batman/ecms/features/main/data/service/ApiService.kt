@@ -3,6 +3,7 @@ package com.batman.ecms.features.main.data.service
 import com.batman.ecms.features.main.data.dto.CheckInDto
 import retrofit2.Response
 import com.batman.ecms.features.main.data.dto.CheckInRequest
+import com.batman.ecms.features.main.data.dto.EditRoleDto
 import com.batman.ecms.features.main.data.dto.EventInfoDto
 import com.batman.ecms.features.main.data.dto.EventsDataDto
 import com.batman.ecms.features.main.data.dto.StaffDto
@@ -20,18 +21,24 @@ interface ApiService {
     @GET("event")
     suspend fun getEvents(
         @Header("Authorization") token: String
-    ): EventsDataDto
+    ): Response<EventsDataDto>
 
     @GET("eventinfo")
     suspend fun getEventInfo(
         @Header("Authorization") token: String,
         @Query("event_id") eventId: String
-    ): EventInfoDto
+    ): Response<EventInfoDto>
 
     @POST("addeventwithcode/{code}")
     suspend fun addEventWithCode(
         @Header("Authorization") token: String,
         @Path("code") code: String
+    ): Response<Unit>
+
+    @POST("modifyRoleToStaffs")
+    suspend fun modifyStaffRole(
+        @Header("Authorization") token: String,
+        @Body editRoleDto: EditRoleDto
     ): Response<Unit>
 
     @GET("users/{event_id}")
@@ -50,13 +57,13 @@ interface ApiService {
     suspend fun getCheckInByActivity(
         @Header("Authorization") token: String,
         @Path("activity_id") activityId: String
-    ): CheckInDto
+    ): Response<CheckInDto>
 
     @GET("attendeecheckins/{attendee_id}")
     suspend fun getCheckInByAttendee(
         @Header("Authorization") token: String,
         @Path("attendee_id") attendeeId: String
-    ): Response<CheckInDto?>
+    ): Response<CheckInDto>
 
     @GET("getstaffs/{event_id}")
     suspend fun getStaffsByEventId(

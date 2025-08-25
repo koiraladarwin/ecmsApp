@@ -1,5 +1,6 @@
 package com.batman.ecms.features.main.data.dto
 
+import com.batman.ecms.features.common.utils.formatDate
 import com.batman.ecms.features.main.domain.models.ActivityData
 
 
@@ -12,12 +13,13 @@ data class ActivityDto(
     val start_time: String,
     val type: String
 )
-fun ActivityDto.toActivity(total:Int): ActivityData{
+
+fun ActivityDto.toActivity(total: Int): ActivityData {
     return ActivityData(
         activityId = id,
         title = name,
-        startTime = start_time,
-        endTime = end_time,
+        startTime = formatDate(start_time),
+        endTime = formatDate(end_time),
         checkedIn = number_of_scaned_users,
         total = total
     )

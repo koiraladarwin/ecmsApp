@@ -1,5 +1,6 @@
 package com.batman.ecms.features.main.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
@@ -24,12 +27,15 @@ import com.batman.ecms.features.main.domain.models.StaffData
 import com.batman.ecms.features.main.presentation.components.PersonInfoCard
 import com.batman.ecms.features.main.presentation.components.StaffInfo
 import com.batman.ecms.features.main.presentation.viewModels.StaffScreenViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun StaffScreen(
-    eventId: String = "409f7350-31c0-4a97-ac31-0adceb48f816",
+    eventId: String,
     viewModel: StaffScreenViewModel = viewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.fetchStaffs(eventId)
     }
@@ -60,8 +66,22 @@ fun StaffScreen(
                             canSeeScanned = staff.canSeeScanned,
                             canSeeAttendee = staff.canSeeAttendee,
                             canAddAttendee = staff.canAddAttendee,
-                            onSave = { a, b, c ->
-
+                            onSave = { seeAtt, adAtt, seeScan ->
+                                coroutineScope.launch {
+                                    val ok = viewModel.modifyStaffRole(
+                                        firebaseId = staff.firebaseId,
+                                        canSeeScanned = seeAtt,
+                                        canAddAttendee = adAtt,
+                                        canSeeAttendee = seeScan,
+                                        eventId = eventId
+                                    )
+                                    viewModel.fetchStaffs(eventId)
+                                    Toast.makeText(
+                                        context,
+                                        if (ok) "Staff Role Changed" else "Failed To Change",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             },
                         )
                         Spacer(modifier = Modifier.size(10.dp))
@@ -72,27 +92,4 @@ fun StaffScreen(
 
         }
     }
-//    Column(
-//        modifier = Modifier
-//            .padding(horizontal = 10.dp)
-//            .padding(top = 15.dp)
-//    ) {
-//        StaffInfo(
-//            name = "Bruce Wayne",
-//            email = "darwinkoirala123@gmail.com",
-//            imageUrl = "https://randomuser.me/api/portraits/men/30.jpg",
-//            onSave = { a, b, c ->
-//
-//            },
-//        )
-//        Spacer(modifier = Modifier.size(10.dp))
-//        PersonInfoCard(
-//            name = "Bruce Wayne",
-//            code = "MEM-2",
-//            position = "Executive",
-//            company = "OCS Business Solution",
-//            imageUrl = "https://randomuser.me/api/portraits/men/30.jpg",
-//            onClickLogs = {},
-//        )
-//    }
 }

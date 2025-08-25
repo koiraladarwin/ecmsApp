@@ -49,12 +49,10 @@ class MainActivity : ComponentActivity() {
                     signedIn = if (authState is AuthState.Success) {
                         (authState as AuthState.Success).user
                     } else null
-
                 }
 
                 signedIn?.let {
-                    AuthUserObject.jwt = signedIn!!.jwtToken;
-                    MainLayout(it, onSignOut = {
+                    MainLayout(onSignOut = {
                         authViewModel.signOut()
                     })
                     return@EcmsTheme

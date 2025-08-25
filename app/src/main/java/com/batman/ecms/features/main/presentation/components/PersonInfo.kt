@@ -38,7 +38,8 @@ fun PersonInfoCard(
     company: String,
     imageUrl: String,
     modifier: Modifier = Modifier,
-    onClickLogs:()->Unit
+    onClickLogs:()->Unit,
+    onShareClick:()->Unit,
 ) {
     Box(
         modifier = modifier
@@ -109,7 +110,7 @@ fun PersonInfoCard(
                 IconButton(onClick = onClickLogs){
                     Icon(Icons.Default.AccountBox, contentDescription = "Logs")
                 }
-                IconButton(onClick = {}) {
+                IconButton(onClick = onShareClick) {
                     Icon(Icons.Default.Share, contentDescription = "Share")
                 }
             }

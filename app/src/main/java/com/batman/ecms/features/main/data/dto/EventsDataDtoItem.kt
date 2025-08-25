@@ -1,5 +1,6 @@
 package com.batman.ecms.features.main.data.dto
 
+import com.batman.ecms.features.common.utils.formatDate
 import com.batman.ecms.features.main.domain.models.EventData
 
 data class EventsDataDtoItem(
@@ -9,17 +10,18 @@ data class EventsDataDtoItem(
     val location: String,
     val name: String,
     val number_of_participant: Int,
+    val number_of_staff: Int,
     val start_time: String
 )
 
-fun EventsDataDtoItem.toEventData(): EventData{
-   return EventData(
+fun EventsDataDtoItem.toEventData(): EventData {
+    return EventData(
         id = id,
         name = name,
         imageUrl = "https://images.unsplash.com/photo-1531058020387-3be344556be6?w=500",
         location = location,
-        date = start_time,
+        date = formatDate(start_time),
         attendees = number_of_participant,
-        staffs = 0
+        staffs = number_of_staff
     )
 }

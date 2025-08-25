@@ -1,4 +1,5 @@
 package com.batman.ecms.features.main.presentation.components
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -112,10 +113,10 @@ fun StaffInfo(
     if (showDialog) {
         PersonDetailDialog(
             name = name,
-            email ="darwinkoirala123@gmail.com" ,
+            email = "darwinkoirala123@gmail.com",
             onDismiss = { showDialog = false },
-            onSave = {  check1, check2, check3 ->
-                onSave(check1,check2,check3)
+            onSave = { canSeeAttendee, canAddAttendee, canSeeScanned ->
+                onSave(canSeeAttendee, canAddAttendee, canSeeScanned)
                 showDialog = false
             },
             canSeeAttendee = canSeeAttendee,
@@ -150,7 +151,7 @@ fun PersonDetailDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = {
-                onSave( canSeeScannedState, canAddAttendeeState, canSeeAttendeeState)
+                onSave(canSeeScannedState, canAddAttendeeState, canSeeAttendeeState)
             }) {
                 Text("Save")
             }
@@ -180,15 +181,21 @@ fun PersonDetailDialog(
 
                 // Checkboxes
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = canSeeScannedState, onCheckedChange = { canSeeScannedState = it })
+                    Checkbox(
+                        checked = canSeeScannedState,
+                        onCheckedChange = { canSeeScannedState = it })
                     Text("Can See Scanned")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = canAddAttendeeState, onCheckedChange = { canAddAttendeeState = it })
+                    Checkbox(
+                        checked = canAddAttendeeState,
+                        onCheckedChange = { canAddAttendeeState = it })
                     Text("Can Add Attendee")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = canSeeAttendeeState, onCheckedChange = { canSeeAttendeeState = it })
+                    Checkbox(
+                        checked = canSeeAttendeeState,
+                        onCheckedChange = { canSeeAttendeeState = it })
                     Text("Can See Attendee")
                 }
 

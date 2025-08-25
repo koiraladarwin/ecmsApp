@@ -144,7 +144,7 @@ fun EventInfoScreen(
                                 )
                                 value.data.staffCode?.let{
                                     StatRow(
-                                        label = "Staff Code",
+                                        label = "Invite Code",
                                         value = value.data.staffCode
                                     )
                                 }
