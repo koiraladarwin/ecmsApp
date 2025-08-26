@@ -24,7 +24,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val client = GoogleAuthUiClient(application.applicationContext)
 
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState
 
     init {
