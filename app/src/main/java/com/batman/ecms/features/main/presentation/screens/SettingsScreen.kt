@@ -31,62 +31,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.batman.ecms.R
+import com.batman.ecms.features.main.presentation.viewModels.SettingItem
+import com.batman.ecms.features.main.presentation.viewModels.SettingsViewModel
 
-
-data class SettingItem(
-    val icon: ImageVector,
-    val title: String,
-    val subtitle: String,
-    val onClick: () -> Unit
-)
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SettingsScreen(
-    userName: String = "Batman",
-    userEmail: String = "xyz123@gmail.com",
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    viewModel: SettingsViewModel = viewModel()
 ) {
-    val settings = listOf(
-        SettingItem(
-            Icons.Default.Person,
-            "Account",
-            "Security notifications, change number"
-        ) { /* TODO */ },
-        SettingItem(
-            Icons.Default.Lock,
-            "Privacy",
-            "Block contacts, disappearing messages"
-        ) { /* TODO */ },
-        SettingItem(Icons.Default.Face, "Avatar", "Create, edit, profile photo") { /* TODO */ },
-        SettingItem(
-            Icons.AutoMirrored.Default.Chat,
-            "Chats",
-            "Theme, wallpapers, chat history"
-        ) { /* TODO */ },
-        SettingItem(
-            Icons.Default.Notifications,
-            "Notifications",
-            "Message, group & call tones"
-        ) { /* TODO */ },
-        SettingItem(
-            Icons.Default.Storage,
-            "Storage and data",
-            "Network usage, auto-download"
-        ) { /* TODO */ },
-        SettingItem(
-            Icons.Default.Language,
-            "App language",
-            "English (device's language)"
-        ) { /* TODO */ },
-        SettingItem(
-            Icons.AutoMirrored.Default.Help,
-            "Help",
-            "Help centre, contact us, privacy policy"
-        ) { /* TODO */ }
-    )
-
     Scaffold(
     ) {
         Column(
@@ -95,7 +52,6 @@ fun SettingsScreen(
                 .padding()
                 .padding(horizontal = 16.dp)
         ) {
-            // Profile Section
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -103,21 +59,24 @@ fun SettingsScreen(
                     .padding(vertical = 24.dp)
             ) {
                 AsyncImage(
-                    model = "https://randomuser.me/api/portraits/men/44.jpg",
+                    model = viewModel.personInfo.value.img,
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(64.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    placeholder = painterResource(id = R.drawable.placeholder),
+                    error = painterResource(id = R.drawable.placeholder)
+
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
-                        text = userName,
+                        text = viewModel.personInfo.value.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
                     Text(
-                        text = userEmail,
+                        text = viewModel.personInfo.value.email,
                         color = Color.Gray,
                         fontSize = 14.sp
                     )
@@ -129,7 +88,7 @@ fun SettingsScreen(
             // Settings items
             Column(modifier = Modifier.fillMaxWidth()) {
                 LazyColumn {
-                    items(settings) { item ->
+                    items(viewModel.settings) { item ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
