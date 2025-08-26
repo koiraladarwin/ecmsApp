@@ -1,5 +1,7 @@
 package com.batman.ecms
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
@@ -34,6 +36,7 @@ import com.batman.ecms.features.main.presentation.screens.AttendeeCheckInScreen
 import com.batman.ecms.features.main.presentation.screens.StaffScreen
 import com.batman.ecms.features.main.presentation.screens.AttendeesScreen
 import com.batman.ecms.features.main.presentation.screens.ScanAttendeeScreen
+import com.batman.ecms.features.main.presentation.screens.SettingsScreen
 import com.batman.ecms.features.main.presentation.screens.VerifyScreen
 
 sealed class Screen(val route: String) {
@@ -75,6 +78,7 @@ val bottomBarRoutes = listOf(
 )
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLayout(onSignOut: () -> Unit) {
@@ -154,7 +158,7 @@ fun MainLayout(onSignOut: () -> Unit) {
             }
             composable(Screen.Notifications.route) { NotificationsScreen() }
             composable(Screen.Verify.route) { VerifyScreen() }
-            composable(Screen.Settings.route) { Settings2Screen(onSignOut) }
+            composable(Screen.Settings.route) { SettingsScreen(onSignOut = onSignOut) }
             composable(
                 route = Screen.EventInfo.route,
                 arguments = listOf(navArgument("eventId") { type = NavType.StringType })
@@ -247,18 +251,5 @@ fun NotificationsScreen() {
     }
 }
 
-@Composable
-fun Settings2Screen(onSignOut: () -> Unit) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = onSignOut) {
-            Text("Sign Out")
-        }
-    }
-}
 
-@Composable
-fun SettingsScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Settings Screen")
-    }
-}
+
