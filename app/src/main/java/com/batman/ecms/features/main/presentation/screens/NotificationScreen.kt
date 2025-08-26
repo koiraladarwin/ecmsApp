@@ -61,7 +61,7 @@ fun NotificationsScreen() {
         )
     )
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         items(notifications) { notification ->
             Box(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)

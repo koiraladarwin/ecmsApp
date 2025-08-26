@@ -36,7 +36,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _authState.value = AuthState.Success(user)
             } else {
                 Log.d(TAG, "No signed-in user.")
-                _authState.value = AuthState.Idle // make this explicit
+                _authState.value = AuthState.Idle
             }
         }
     }
