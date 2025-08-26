@@ -2,6 +2,7 @@ package com.batman.ecms.features.main.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,12 +43,14 @@ fun PersonInfoCard(
     modifier: Modifier = Modifier,
     onClickLogs: () -> Unit,
     onShareClick: () -> Unit,
+    onClick:()->Unit,
 ) {
     Box(
         modifier = modifier
             .height(100.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clickable(onClick=onClick)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(), // fill the Box

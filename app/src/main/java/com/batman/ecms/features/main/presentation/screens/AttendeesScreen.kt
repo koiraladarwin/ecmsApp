@@ -5,13 +5,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,18 +22,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,9 +42,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.batman.ecms.UiState
@@ -57,7 +56,6 @@ import com.batman.ecms.features.main.presentation.components.PersonInfoCard
 import com.batman.ecms.features.main.presentation.viewModels.AttendeesViewModel
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -85,6 +83,9 @@ fun AttendeesScreen(
     var position by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
     var addingUser by remember { mutableStateOf(false) }
+
+    var Qrbitmap by remember{mutableStateOf<Bitmap?>(null)}
+
     LaunchedEffect(Unit) {
         viewModel.fetchUsers(eventId)
     }
@@ -163,6 +164,22 @@ fun AttendeesScreen(
                                 position = user.position,
                                 company = user.company,
                                 imageUrl = user.imgUrl,
+                                onClick = {
+                                    try {
+                                        // 1. Generate QR Code
+                                        val barcodeEncoder = BarcodeEncoder()
+                                        val bitmap: Bitmap = barcodeEncoder.encodeBitmap(
+                                            user.id,
+                                            BarcodeFormat.QR_CODE,
+                                            512,
+                                            512
+                                        )
+                                        Qrbitmap = bitmap
+
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                },
                                 onClickLogs = {
                                     onClickCheckInLogs(user.id)
                                 },
@@ -224,6 +241,16 @@ fun AttendeesScreen(
 
 
             }
+        }
+    }
+    Qrbitmap?.let {
+        Dialog(onDismissRequest = {
+            Qrbitmap = null
+        }) {
+            Image(
+                bitmap = Qrbitmap!!.asImageBitmap(),
+                contentDescription = "Qr"
+            )
         }
     }
     if (showAddDialog) {
