@@ -78,7 +78,7 @@ interface ApiService {
         @Body user: UserRequest
     ): Response<Unit>
 
-    @POST("event")
+    @POST("activity")
     suspend fun addActivity(
         @Header("Authorization") token: String,
         @Body user: ActivityRequest

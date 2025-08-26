@@ -89,4 +89,14 @@ dependencies {
     //Qr Stuffs
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
+    //calender
+    implementation ("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
+    implementation ("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
+
+    //icons
+
+    implementation ("androidx.compose.material:material-icons-extended:1.5.0")
+
+
+
 }

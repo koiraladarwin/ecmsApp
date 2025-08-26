@@ -1,7 +1,11 @@
 package com.batman.ecms.features.common.utils
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -21,4 +25,11 @@ fun formatDate(isoDate: String): String {
     } catch (e: ParseException) {
         "failed"
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun toIsoString(date: LocalDateTime): String {
+    return date.atZone(ZoneId.systemDefault())
+        .toInstant()
+        .toString()
 }

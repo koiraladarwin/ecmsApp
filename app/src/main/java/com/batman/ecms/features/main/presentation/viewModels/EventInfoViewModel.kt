@@ -1,19 +1,26 @@
 package com.batman.ecms.features.main.presentation.viewModels
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.batman.ecms.AuthUserObject
 import com.batman.ecms.UiState
 import com.batman.ecms.features.common.constants.MessageConst
+import com.batman.ecms.features.common.utils.toIsoString
 import com.batman.ecms.features.main.data.dto.ActivityRequest
 import com.batman.ecms.features.main.data.dto.UserRequest
 import com.batman.ecms.features.main.data.dto.toEventData
 import com.batman.ecms.features.main.data.service.RetrofitInstance
 import com.batman.ecms.features.main.domain.models.EventInfoData
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class EventInfoViewModel : ViewModel() {
     private val _state = MutableStateFlow<UiState<EventInfoData>>(UiState.Loading)
@@ -42,11 +49,12 @@ class EventInfoViewModel : ViewModel() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun addActivity(
         name: String,
-        type:String,
-        startTime: Instant,
-        endTime: Instant,
+        type: String,
+        startTime: String,
+        endTime: String,
         eventId: String
     ): String? {
         return try {
@@ -62,7 +70,7 @@ class EventInfoViewModel : ViewModel() {
             )
             when (response.code()) {
                 201 -> null
-                401-> MessageConst.ACESSDENIED
+                401 -> MessageConst.ACESSDENIED
                 else -> MessageConst.SERVERERROR
             }
         } catch (e: IOException) {
