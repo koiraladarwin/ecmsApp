@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -14,8 +15,10 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import com.batman.ecms.features.main.presentation.screens.ActivityCheckInScreen
 import com.batman.ecms.features.main.presentation.screens.AttendeeCheckInScreen
 import com.batman.ecms.features.main.presentation.screens.StaffScreen
 import com.batman.ecms.features.main.presentation.screens.AttendeesScreen
+import com.batman.ecms.features.main.presentation.screens.NotificationsScreen
 import com.batman.ecms.features.main.presentation.screens.ScanAttendeeScreen
 import com.batman.ecms.features.main.presentation.screens.SettingsScreen
 import com.batman.ecms.features.main.presentation.screens.VerifyScreen
@@ -95,7 +99,7 @@ fun MainLayout(onSignOut: () -> Unit) {
                 currentRoute == Screen.Home.route -> MainTopAppBar(title = "Home")
                 currentRoute == Screen.Staff.route -> MainTopAppBar(title = "Staff")
                 currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
-                currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Profile")
+                currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
                 currentRoute == Screen.Verify.route -> MainTopAppBar(title = "Verify")
                 currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
                 currentRoute?.startsWith(Screen.Attendees.route) == true -> MainTopAppBar(title = "Attendees")
@@ -232,24 +236,21 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (String) -> Unit)
                             is Screen.Settings -> Icons.Default.Person
                             else -> Icons.Default.Clear
                         },
-                        contentDescription = screen.route
+                        contentDescription = screen.route,
                     )
                 },
                 label = { Text(screen.route.replaceFirstChar { it.uppercase() }) },
                 selected = currentRoute == screen.route,
-                onClick = { onItemSelected(screen.route) }
+                onClick = { onItemSelected(screen.route) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
         }
     }
 }
-
-
-@Composable
-fun NotificationsScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Notifications Screen")
-    }
-}
-
 
 

@@ -1,5 +1,6 @@
 package com.batman.ecms
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.IntentSenderRequest.*
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,13 +40,22 @@ class MainActivity : ComponentActivity() {
     private val signInLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
-        if (result.resultCode == RESULT_OK) {
+        when (result.resultCode) {
+        RESULT_OK -> {
             result.data?.let {
                 authViewModel.handleSignInIntent(it)
             }
         }
+        RESULT_CANCELED -> {
+            authViewModel.signOut()
+        }
+        else -> {
+            authViewModel.signOut()
+        }
+    }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -57,7 +68,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .background(MaterialTheme.colorScheme.background),
-                              contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center
                         ) {
                             CustomLoader()
                         }
@@ -82,7 +93,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    AuthState.Idle -> {
+                    is AuthState.Idle -> {
                         AuthScreen(
                             authViewModel = authViewModel,
                             onStartSignIn = {
