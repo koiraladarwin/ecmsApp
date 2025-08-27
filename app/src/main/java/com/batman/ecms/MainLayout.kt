@@ -115,18 +115,14 @@ fun MainLayout(onSignOut: () -> Unit) {
 
         topBar = {
             when {
-                currentRoute == Screen.Home.route -> MainTopAppBar(title = "Home")
-                currentRoute == Screen.Staff.route -> MainTopAppBar(title = "Staff")
+                currentRoute == Screen.Home.route -> MainTopAppBar(title = "ECMS")
                 currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
                 currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
                 currentRoute == Screen.Verify.route -> MainTopAppBar(title = "Verify")
                 currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
+                currentRoute?.startsWith(Screen.Staff.route) == true -> MainTopAppBar(title = "Staff")
                 currentRoute?.startsWith(Screen.Attendees.route) == true -> MainTopAppBar(title = "Attendees")
                 currentRoute?.startsWith(Screen.ActivityCheckIn.route) == true -> MainTopAppBar(
-                    title = "Attendees"
-                )
-
-                currentRoute?.startsWith(Screen.AttendeeCheckIn.route) == true -> MainTopAppBar(
                     title = "Attendees"
                 )
 
@@ -147,21 +143,38 @@ fun MainLayout(onSignOut: () -> Unit) {
             }
         }
     ) { innerPadding ->
+        val paddingModifier = if (shouldShowBottomBar) {
+            //remove this part later when all routes have individual top app bar
+            Modifier.padding(
+                bottom = innerPadding.calculateBottomPadding(),
+                top = innerPadding.calculateTopPadding()
+            )
+        } else {
+            //remove this part later when all routes have individual top app bar
+            Modifier.padding(
+                top = innerPadding.calculateTopPadding()
+            )
+        }
         NavHost(
             enterTransition = {
                 val targetIdx = getTargetIndex(targetState.destination.route)
-                if (lastIndex < targetIdx) {
-                    slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) + fadeIn()
+                if (targetIdx == -1 || lastIndex == -1) {
+                    EnterTransition.None
+                } else if (lastIndex < targetIdx) {
+                    slideInHorizontally { fullWidth -> fullWidth } + fadeIn()
                 } else {
-                    slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) + fadeIn()
+                    slideInHorizontally { fullWidth -> -fullWidth } + fadeIn()
                 }
             },
+
             exitTransition = {
                 val targetIdx = getTargetIndex(targetState.destination.route)
-                if (lastIndex < targetIdx) {
-                    slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth / 3 }) + fadeOut()
+                if (targetIdx == -1 || lastIndex == -1) {
+                    ExitTransition.None
+                } else if (lastIndex < targetIdx) {
+                    slideOutHorizontally { fullWidth -> -fullWidth / 3 } + fadeOut()
                 } else {
-                    slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth / 3 }) + fadeOut()
+                    slideOutHorizontally { fullWidth -> fullWidth / 3 } + fadeOut()
                 }
             },
 
@@ -175,8 +188,7 @@ fun MainLayout(onSignOut: () -> Unit) {
             navController = navController,
             startDestination = Screen.Home.route,
 
-            modifier = Modifier
-                .padding(innerPadding)
+            modifier = paddingModifier
                 .fillMaxSize()
         ) {
             composable(Screen.Home.route) {
@@ -193,8 +205,12 @@ fun MainLayout(onSignOut: () -> Unit) {
                 )
             }
             composable(
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None },
                 route = Screen.Staff.route,
-                arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+                arguments = listOf(navArgument("eventId") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId")
                 StaffScreen(eventId = eventId.toString())
@@ -240,7 +256,7 @@ fun MainLayout(onSignOut: () -> Unit) {
             composable(
                 route = Screen.ScanAttendee.route,
                 arguments = listOf(navArgument("activityId") { type = NavType.StringType }),
-               enterTransition = { fadeIn(tween(500)) },
+                enterTransition = { fadeIn(tween(500)) },
                 exitTransition = { fadeOut(tween(500)) },
                 popEnterTransition = { fadeIn(tween(300)) },
                 popExitTransition = { fadeOut(tween(300)) }
@@ -283,7 +299,8 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (Int, String) -> 
         Screen.Settings
     )
 
-    NavigationBar {
+    NavigationBar(
+    ) {
         items.forEachIndexed { index, screen ->
             NavigationBarItem(
                 icon = {
@@ -305,15 +322,14 @@ fun BottomNavigationBar(currentRoute: String?, onItemSelected: (Int, String) -> 
                     selectedIconColor = MaterialTheme.colorScheme.primary,
                     selectedTextColor = MaterialTheme.colorScheme.primary,
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             )
         }
     }
 }
 
-fun getTargetIndex(route: String?): Int {
-    return bottomBarRoutes.indexOf(route).takeIf { it >= 0 } ?: 0
+private fun getTargetIndex(route: String?): Int {
+    val baseRoute = route?.substringBefore("/")
+    return bottomBarRoutes.indexOf(baseRoute).takeIf { it >= 0 } ?: -1
 }
-
-

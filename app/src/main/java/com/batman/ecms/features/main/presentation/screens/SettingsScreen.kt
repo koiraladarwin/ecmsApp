@@ -52,94 +52,91 @@ fun SettingsScreen(
                 .padding()
                 .padding(horizontal = 16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp)
-            ) {
-                AsyncImage(
-                    model = viewModel.personInfo.value.img,
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    placeholder = painterResource(id = R.drawable.placeholder),
-                    error = painterResource(id = R.drawable.placeholder)
-
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(
-                        text = viewModel.personInfo.value.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                    Text(
-                        text = viewModel.personInfo.value.email,
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-
-            Divider(color = Color.LightGray, thickness = 1.dp)
-
-            // Settings items
-            Column(modifier = Modifier.fillMaxWidth()) {
-                LazyColumn {
-                    items(viewModel.settings) { item ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+            LazyColumn {
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp)
+                    ) {
+                        AsyncImage(
+                            model = viewModel.personInfo.value.img,
+                            contentDescription = "Profile Picture",
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { item.onClick() }
-                                .padding(vertical = 16.dp)
-                        ) {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(
-                                    text = item.title,
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 16.sp
-                                )
-                                Text(
-                                    text = item.subtitle,
-                                    fontSize = 12.sp,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                        Divider(color = Color.LightGray.copy(alpha = 0.3f))
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(24.dp))
+                                .size(64.dp)
+                                .clip(CircleShape),
+                            placeholder = painterResource(id = R.drawable.placeholder),
+                            error = painterResource(id = R.drawable.placeholder)
 
-                        // Sign Out button
-                        Button(
-                            onClick = onSignOut,
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = viewModel.personInfo.value.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp
                             )
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ExitToApp,
-                                contentDescription = "Sign Out"
+                            Text(
+                                text = viewModel.personInfo.value.email,
+                                color = Color.Gray,
+                                fontSize = 14.sp
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Sign Out")
                         }
                     }
 
                 }
+                items(viewModel.settings) { item ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { item.onClick() }
+                            .padding(vertical = 16.dp)
+                    ) {
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.title,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = item.title,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = item.subtitle,
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                    Divider(color = Color.LightGray.copy(alpha = 0.3f))
+                }
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Sign Out button
+                    Button(
+                        onClick = onSignOut,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ExitToApp,
+                            contentDescription = "Sign Out"
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Sign Out")
+                    }
+                }
+
             }
         }
     }

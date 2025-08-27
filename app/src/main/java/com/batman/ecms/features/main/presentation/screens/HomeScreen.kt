@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,7 @@ import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.features.main.data.service.RetrofitInstance
 import com.batman.ecms.features.main.presentation.components.AddEventDialog
 import com.batman.ecms.features.main.presentation.components.EventCard
+import com.batman.ecms.features.main.presentation.components.MainTopAppBar
 import com.batman.ecms.features.main.presentation.viewModels.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -60,44 +62,47 @@ fun HomeScreen(
             }
         }
     )
-    Scaffold(floatingActionButton = {
+    Scaffold(
+        floatingActionButton = {
             FloatingActionButton(onClick = {
                 showDialog = true
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
     },) {
-
-        when (val state = uiState.value) {
-            is UiState.Loading -> {
-                CustomLoader()
-                return@Scaffold
-            }
-
-            is UiState.Error -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                    Text(text = "Error: ${state.message}", color = Color.Red)
+        Box(modifier = Modifier.fillMaxSize()){
+            when (val state = uiState.value) {
+                is UiState.Loading -> {
+                    CustomLoader()
+                    return@Scaffold
                 }
-                return@Scaffold
-            }
 
-            is UiState.Success -> {
-                LazyColumn {
-                    items(state.data) { event ->
-                        EventCard(
-                            imageUrl = event.imageUrl,
-                            title = event.name,
-                            date = event.date,
-                            location = event.location,
-                            attendees = event.attendees,
-                            staffs = event.staffs,
-                            onClickActivity = { navigateToEventInfo(event.id) },
-                            onClickAttendees = { navigateToAttendeeInfo(event.id) },
-                            onClickStaff = { navigateToStaffInfo(event.id) }
-                        )
+                is UiState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                        Text(text = "Error: ${state.message}", color = Color.Red)
+                    }
+                    return@Scaffold
+                }
+
+                is UiState.Success -> {
+                    LazyColumn {
+                        items(state.data) { event ->
+                            EventCard(
+                                imageUrl = event.imageUrl,
+                                title = event.name,
+                                date = event.date,
+                                location = event.location,
+                                attendees = event.attendees,
+                                staffs = event.staffs,
+                                onClickActivity = { navigateToEventInfo(event.id) },
+                                onClickAttendees = { navigateToAttendeeInfo(event.id) },
+                                onClickStaff = { navigateToStaffInfo(event.id) }
+                            )
+                        }
                     }
                 }
             }
+
         }
 
     }

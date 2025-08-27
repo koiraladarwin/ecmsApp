@@ -11,12 +11,12 @@ import com.commandiron.compose_loading.ChasingDots
 
 @Composable
 fun CustomLoader() {
-     Box(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Transparent)
-         , contentAlignment = Alignment.Center
+        , contentAlignment = Alignment.Center
     ) {
-         ChasingDots()
+        ChasingDots()
     }
 }
