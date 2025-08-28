@@ -62,6 +62,8 @@ import com.batman.ecms.features.common.constants.MessageConst
 import com.batman.ecms.features.common.utils.formatDate
 import com.batman.ecms.features.main.domain.models.EventInfoData
 import com.batman.ecms.features.main.presentation.components.ActivityStats
+import com.batman.ecms.features.main.presentation.components.DefaultTopAppBar
+import com.batman.ecms.features.main.presentation.components.NavBackTopAppBar
 import com.batman.ecms.features.main.presentation.components.StatRow
 import com.batman.ecms.features.main.presentation.viewModels.EventInfoViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
@@ -86,6 +88,7 @@ fun EventInfoScreen(
     viewModel: EventInfoViewModel = viewModel(),
     navigateToScan: (String) -> Unit,
     navigateToActivityCheckIn: (String) -> Unit,
+    navBack: () -> Unit
 ) {
 
     val state = viewModel.state.collectAsState()
@@ -124,6 +127,7 @@ fun EventInfoScreen(
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         },
+        topBar = { NavBackTopAppBar("Event Info",navBack=navBack) }
     ) {
         when (val value = state.value) {
             is UiState.Error -> {

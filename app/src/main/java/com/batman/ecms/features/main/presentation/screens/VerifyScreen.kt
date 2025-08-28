@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +42,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.batman.ecms.UiState
+import com.batman.ecms.features.main.presentation.components.DefaultTopAppBar
 import com.batman.ecms.features.main.presentation.components.QrScannerView
 import kotlinx.coroutines.delay
 
@@ -48,7 +50,6 @@ import kotlinx.coroutines.delay
 fun VerifyScreen() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-
 
     var scanned by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
@@ -72,93 +73,106 @@ fun VerifyScreen() {
         }
     }
 
+    Scaffold(
+        topBar = { DefaultTopAppBar("Verify") }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = innerPadding.calculateTopPadding())
+        ) {
+            if (!scanned) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
+                    QrScannerView { attendeeId ->
+                        scanned = true
+                    }
 
-
-    if (!scanned) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-            QrScannerView { attendeeId ->
-                scanned = true
-            }
-
-            val boxSize = 250.dp
-            val infiniteTransition = rememberInfiniteTransition()
-            val alpha by infiniteTransition.animateFloat(
-                initialValue = 1f,
-                targetValue = 0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 500, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                )
-            )
-
-            Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .background(Color.Black.copy(alpha = 0.5f))
-                )
-                Row(modifier = Modifier.height(boxSize)) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .background(Color.Black.copy(alpha = 0.5f))
+                    val boxSize = 250.dp
+                    val infiniteTransition = rememberInfiniteTransition()
+                    val alpha by infiniteTransition.animateFloat(
+                        initialValue = 1f,
+                        targetValue = 0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 500, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        )
                     )
-                    Box(
-                        modifier = Modifier
-                            .size(boxSize)
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(2.dp, Color.Black.copy(alpha = 0.6f))
-                            .background(Color.Transparent),
-                        contentAlignment = Alignment.Center
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(2.dp)
-                                .background(Color.Red.copy(alpha = alpha))
+                                .weight(1f)
+                                .background(Color.Black.copy(alpha = 0.5f))
+                        )
+                        Row(modifier = Modifier.height(boxSize)) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .background(Color.Black.copy(alpha = 0.5f))
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(boxSize)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .border(2.dp, Color.Black.copy(alpha = 0.6f))
+                                    .background(Color.Transparent),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(2.dp)
+                                        .background(Color.Red.copy(alpha = alpha))
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .background(Color.Black.copy(alpha = 0.5f))
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.Black.copy(alpha = 0.5f))
                         )
                     }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .background(Color.Black.copy(alpha = 0.5f))
-                    )
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .background(Color.Black.copy(alpha = 0.5f))
-                )
+
+                return@Box
             }
-        }
-
-        return
-    }
 
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        if (showDialog) {
-            Dialog(onDismissRequest = {}) {
-                Box(
-                    modifier = Modifier
-                        .size(250.dp)
-                        .background(Color.White, shape = RoundedCornerShape(16.dp))
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                if (showDialog) {
+                    Dialog(onDismissRequest = {}) {
+                        Box(
+                            modifier = Modifier
+                                .size(250.dp)
+                                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                        }
+                    }
+                }
+
+                LaunchedEffect(Unit) {
+                    showDialog = false
+                    scanned = false
                 }
             }
         }
 
-        LaunchedEffect(Unit) {
-            showDialog = false
-            scanned = false
-        }
     }
+
+
 }

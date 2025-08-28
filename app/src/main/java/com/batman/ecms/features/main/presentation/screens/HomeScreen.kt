@@ -39,7 +39,6 @@ import com.batman.ecms.features.main.presentation.components.MainTopAppBar
 import com.batman.ecms.features.main.presentation.viewModels.HomeViewModel
 import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
     navigateToEventInfo: (String) -> Unit,
@@ -58,7 +57,7 @@ fun HomeScreen(
             showDialog = false
             coroutineScope.launch {
                 val ok = viewModel.submitAddEvent(code)
-                if (!ok) Toast.makeText(context,"Failed to add Event", Toast.LENGTH_LONG).show()
+                if (!ok) Toast.makeText(context, "Failed to add Event", Toast.LENGTH_LONG).show()
             }
         }
     )
@@ -69,8 +68,12 @@ fun HomeScreen(
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
-    },) {
-        Box(modifier = Modifier.fillMaxSize()){
+        },
+        topBar = { MainTopAppBar("ECMS") }
+    ) { innerPadding ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(top = innerPadding.calculateTopPadding())) {
             when (val state = uiState.value) {
                 is UiState.Loading -> {
                     CustomLoader()
@@ -78,7 +81,7 @@ fun HomeScreen(
                 }
 
                 is UiState.Error -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(text = "Error: ${state.message}", color = Color.Red)
                     }
                     return@Scaffold

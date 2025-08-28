@@ -113,24 +113,6 @@ fun MainLayout(onSignOut: () -> Unit) {
 
     Scaffold(
 
-        topBar = {
-            when {
-                currentRoute == Screen.Home.route -> MainTopAppBar(title = "ECMS")
-                currentRoute == Screen.Notifications.route -> MainTopAppBar(title = "Notifications")
-                currentRoute == Screen.Settings.route -> MainTopAppBar(title = "Settings")
-                currentRoute == Screen.Verify.route -> MainTopAppBar(title = "Verify")
-                currentRoute?.startsWith(Screen.EventInfo.route) == true -> MainTopAppBar(title = "Event Info")
-                currentRoute?.startsWith(Screen.Staff.route) == true -> MainTopAppBar(title = "Staff")
-                currentRoute?.startsWith(Screen.Attendees.route) == true -> MainTopAppBar(title = "Attendees")
-                currentRoute?.startsWith(Screen.ActivityCheckIn.route) == true -> MainTopAppBar(
-                    title = "Attendees"
-                )
-
-                else -> {}
-            }
-        },
-
-
         bottomBar = {
             if (shouldShowBottomBar) {
                 BottomNavigationBar(currentRoute = currentRoute) { index, route ->
@@ -144,17 +126,13 @@ fun MainLayout(onSignOut: () -> Unit) {
         }
     ) { innerPadding ->
         val paddingModifier = if (shouldShowBottomBar) {
-            //remove this part later when all routes have individual top app bar
             Modifier.padding(
                 bottom = innerPadding.calculateBottomPadding(),
-                top = innerPadding.calculateTopPadding()
             )
         } else {
-            //remove this part later when all routes have individual top app bar
-            Modifier.padding(
-                top = innerPadding.calculateTopPadding()
-            )
+            Modifier.padding()
         }
+
         NavHost(
             enterTransition = {
                 val targetIdx = getTargetIndex(targetState.destination.route)
@@ -213,7 +191,9 @@ fun MainLayout(onSignOut: () -> Unit) {
                 arguments = listOf(navArgument("eventId") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId")
-                StaffScreen(eventId = eventId.toString())
+                StaffScreen(eventId = eventId.toString(), navBack = {
+                    navController.popBackStack()
+                })
             }
             composable(Screen.Notifications.route) { NotificationsScreen() }
             composable(Screen.Verify.route) { VerifyScreen() }
@@ -234,6 +214,8 @@ fun MainLayout(onSignOut: () -> Unit) {
                     },
                     navigateToActivityCheckIn = { activityId ->
                         navController.navigate(Screen.ActivityCheckIn.withId(activityId))
+                    }, navBack = {
+                        navController.popBackStack()
                     }
                 )
             }
@@ -250,7 +232,9 @@ fun MainLayout(onSignOut: () -> Unit) {
                     eventId = eventId.toString(),
                     onClickCheckInLogs = { userId ->
                         navController.navigate(Screen.AttendeeCheckIn.withId(userId))
-                    },
+                    }, navBack = {
+                        navController.popBackStack()
+                    }
                 )
             }
             composable(
@@ -273,7 +257,9 @@ fun MainLayout(onSignOut: () -> Unit) {
                 popExitTransition = { fadeOut(tween(300)) }
             ) { backStackEntry ->
                 val activityId = backStackEntry.arguments?.getString("activityId")
-                ActivityCheckInScreen(activityId = activityId.toString())
+                ActivityCheckInScreen(activityId = activityId.toString(), navBack = {
+                    navController.popBackStack()
+                })
             }
             composable(
                 route = Screen.AttendeeCheckIn.route,
@@ -284,7 +270,9 @@ fun MainLayout(onSignOut: () -> Unit) {
                 popExitTransition = { fadeOut(tween(300)) }
             ) { backStackEntry ->
                 val attendeeId = backStackEntry.arguments?.getString("attendeeId")
-                AttendeeCheckInScreen(activityId = attendeeId.toString())
+                AttendeeCheckInScreen(activityId = attendeeId.toString(), navBack = {
+                    navController.popBackStack()
+                })
             }
         }
     }

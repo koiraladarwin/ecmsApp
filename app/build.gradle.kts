@@ -61,6 +61,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
     implementation("com.google.android.gms:play-services-auth:21.0.0")
     implementation("com.google.firebase:firebase-auth:22.3.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
@@ -94,9 +95,10 @@ dependencies {
     implementation ("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
 
     //icons
-
     implementation ("androidx.compose.material:material-icons-extended:1.5.0")
 
+    //accompanist
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
 
 }

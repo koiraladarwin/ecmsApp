@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,12 +27,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import com.batman.ecms.features.auth.AuthScreen
 import com.batman.ecms.features.auth.AuthState
 import com.batman.ecms.features.auth.AuthViewModel
 import com.batman.ecms.features.auth.UserData
 import com.batman.ecms.features.common.components.CustomLoader
 import com.batman.ecms.ui.theme.EcmsTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class MainActivity : ComponentActivity() {
 
@@ -61,6 +64,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             EcmsTheme {
                 val authState by authViewModel.authState.collectAsState()
+
+                val systemUiController = rememberSystemUiController()
+                val backgroundColor = MaterialTheme.colorScheme.background
+                val useDarkIcons = backgroundColor.luminance() > 0.5f
+
+                SideEffect {
+                    systemUiController.setStatusBarColor(
+                        color = backgroundColor,
+                        darkIcons = useDarkIcons
+                    )
+                }
 
                 when (authState) {
                     is AuthState.Loading -> {

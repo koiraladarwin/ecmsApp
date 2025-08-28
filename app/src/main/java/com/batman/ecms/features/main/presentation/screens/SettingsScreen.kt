@@ -34,22 +34,23 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.batman.ecms.R
+import com.batman.ecms.features.main.presentation.components.DefaultTopAppBar
 import com.batman.ecms.features.main.presentation.viewModels.SettingItem
 import com.batman.ecms.features.main.presentation.viewModels.SettingsViewModel
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SettingsScreen(
     onSignOut: () -> Unit,
     viewModel: SettingsViewModel = viewModel()
 ) {
     Scaffold(
-    ) {
+        topBar = { DefaultTopAppBar("Settings") }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding()
+                .padding(top = innerPadding.calculateTopPadding())
                 .padding(horizontal = 16.dp)
         ) {
             LazyColumn {

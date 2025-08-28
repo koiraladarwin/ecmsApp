@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.ECMS" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.ECMS" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Status bar color at launch -->
+        <item name="android:statusBarColor">@color/background</item>
+        <!-- Optional: dark icons -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Make window background same as Compose background -->
+        <item name="android:windowBackground">@color/background</item>
+    </style>
 </resources>
