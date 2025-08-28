@@ -98,9 +98,9 @@ fun NotificationsScreen() {
 @Composable
 fun NotificationCard(notification: NotificationItem) {
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.background
         ),
         modifier = Modifier.padding(5.dp)
     ) {
