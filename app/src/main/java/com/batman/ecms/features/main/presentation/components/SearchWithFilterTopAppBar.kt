@@ -1,14 +1,7 @@
 package com.batman.ecms.features.main.presentation.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,25 +11,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
@@ -44,28 +24,38 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontWeight
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainTopAppBar(title: String) {
+fun SearchWithFilterTopAppBar(
+    title: String,
+    dropdownItems: List<String>,
+    onQueryChange: (String) -> Unit,
+    onDropdownItemSelected: (String) -> Unit
+) {
+    // Internal state
     var showMenu by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
+    var selectedDropdownItem by remember { mutableStateOf(dropdownItems.firstOrNull() ?: "") }
 
     val focusRequester = remember { FocusRequester() }
+
     if (isSearching) {
         TopAppBar(
             title = {
                 TextField(
                     value = query,
-                    onValueChange = { query = it },
+                    onValueChange = {
+                        query = it
+                        onQueryChange(it)
+                    },
                     placeholder = { Text("Search...") },
                     singleLine = true,
                     modifier = Modifier
@@ -80,12 +70,16 @@ fun MainTopAppBar(title: String) {
                 )
             },
             navigationIcon = {
-                IconButton(onClick = { isSearching = false }) {
+                IconButton(onClick = {
+                    isSearching = false
+                    query = ""
+                    onQueryChange("")
+                }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             },
             actions = {
-                IconButton(onClick = { query = "" }) {
+                IconButton(onClick = { query = ""; onQueryChange("") }) {
                     Icon(Icons.Default.Close, contentDescription = "Clear")
                 }
             },
@@ -94,53 +88,33 @@ fun MainTopAppBar(title: String) {
             )
         )
 
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
     } else {
         TopAppBar(
-            title = {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = if (title == "ECMS") FontWeight.Bold else FontWeight.Normal,
-                    color = if (title == "ECMS")
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onBackground
-                )
-            },
+            title = { Text(title) }, // actual title shown
             actions = {
                 IconButton(onClick = { isSearching = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
+                    Icon(Icons.Default.Search, contentDescription = "Search")
                 }
 
-                IconButton(onClick = { showMenu = true }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Options",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
+                IconButton(onClick = { showMenu = !showMenu }) {
+                    Icon(Icons.Default.FilterList, contentDescription = "Filter")
                 }
 
                 DropdownMenu(
                     expanded = showMenu,
-                    onDismissRequest = { showMenu = false }
+                    onDismissRequest = { showMenu = false },
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 15.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "About us",
-                            style = MaterialTheme.typography.titleMedium
+                    dropdownItems.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(item) },
+                            onClick = {
+                                selectedDropdownItem = item
+                                showMenu = false
+                                onDropdownItemSelected(item)
+                            }
                         )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Icon(Icons.Outlined.Info, contentDescription = "Info")
                     }
                 }
             },

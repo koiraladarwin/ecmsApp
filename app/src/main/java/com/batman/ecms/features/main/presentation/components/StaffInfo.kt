@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -51,19 +53,20 @@ fun StaffInfo(
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    Box(
+    Card(
         modifier = modifier
             .height(100.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .clickable { showDialog = true }) {
+            .clickable { showDialog = true },
+        elevation = CardDefaults.cardElevation(3.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background)
+    ) {
         Row(
             modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .height(400.dp)
-                    .width(4.dp)
+                    .width(6.dp)
                     .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
                     .background(MaterialTheme.colorScheme.primary)
             )

@@ -1,6 +1,5 @@
 package com.batman.ecms.features.main.presentation.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.batman.ecms.R
-import com.batman.ecms.features.main.presentation.components.DefaultTopAppBar
+import com.batman.ecms.features.main.presentation.components.SearchWithFilterTopAppBar
 import com.batman.ecms.features.main.presentation.components.SwipeToDeleteContainer
 
 @Composable
@@ -69,7 +67,18 @@ fun NotificationsScreen() {
         )
     }
     Scaffold(
-        topBar = { DefaultTopAppBar("Alerts") }
+        topBar = {
+            SearchWithFilterTopAppBar(
+                "Alerts",
+                dropdownItems = listOf("hours", "days", "months"),
+                onQueryChange = {
+
+                },
+                onDropdownItemSelected = {
+
+                }
+            )
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -77,8 +86,12 @@ fun NotificationsScreen() {
                 .padding(top = innerPadding.calculateTopPadding())
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
             items(
-                items= notifications,
+                items = notifications,
                 key = { it.profileImage + it.time + it.title }
             ) { notification ->
                 SwipeToDeleteContainer(
@@ -86,7 +99,7 @@ fun NotificationsScreen() {
                     onDelete = { item ->
                         notifications.remove(item)
                     },
-                ) {currentItem->
+                ) { currentItem ->
                     NotificationCard(currentItem)
                 }
             }

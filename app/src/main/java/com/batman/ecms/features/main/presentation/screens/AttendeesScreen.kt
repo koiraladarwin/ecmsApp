@@ -56,6 +56,7 @@ import com.batman.ecms.features.main.domain.models.UserData
 import com.batman.ecms.features.main.presentation.components.DefaultTopAppBar
 import com.batman.ecms.features.main.presentation.components.NavBackTopAppBar
 import com.batman.ecms.features.main.presentation.components.PersonInfoCard
+import com.batman.ecms.features.main.presentation.components.SearchWithFilterTopAppBar
 import com.batman.ecms.features.main.presentation.viewModels.AttendeesViewModel
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
@@ -95,7 +96,12 @@ fun AttendeesScreen(
 
     Scaffold(
         topBar = {
-            NavBackTopAppBar("Attendees", navBack = navBack)
+            SearchWithFilterTopAppBar(
+                "Attendees",
+                dropdownItems = roles,
+                onQueryChange = viewModel::enterKeys,
+                onDropdownItemSelected = viewModel::selectRole
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
@@ -110,239 +116,198 @@ fun AttendeesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            when (state) {
+                is UiState.Loading -> {
+                    CustomLoader()
+                }
 
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = searchText,
-                        onValueChange = viewModel::enterKeys,
-                        placeholder = { Text("Search...") },
-                        modifier = Modifier.weight(7.5f)
-                    )
+                is UiState.Error -> {
+                    Text("Error: ${(state as UiState.Error).message}")
+                }
 
-
-                    Box(
+                is UiState.Success -> {
+                    val list = (state as UiState.Success<List<UserData>>).data
+                    LazyColumn(
                         modifier = Modifier
-                            .padding(5.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                            .padding(5.dp)
-                            .clickable { expanded = true }
-                            .weight(2.5f),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = selectedRole, fontWeight = FontWeight.Bold)
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown arrow")
+                        item{
+                            Spacer(modifier = Modifier.height(20.dp))
                         }
+                        items(list) { user ->
+                            PersonInfoCard(
+                                name = user.name,
+                                code = "${user.role}-${user.autoId}",
+                                position = user.position,
+                                company = user.company,
+                                imageUrl = user.imgUrl,
+                                onClick = {
+                                    try {
+                                        // 1. Generate QR Code
+                                        val barcodeEncoder = BarcodeEncoder()
+                                        val bitmap: Bitmap = barcodeEncoder.encodeBitmap(
+                                            user.id,
+                                            BarcodeFormat.QR_CODE,
+                                            512,
+                                            512
+                                        )
+                                        qrBitmap = bitmap
 
-                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            roles.forEach { role ->
-                                DropdownMenuItem(
-                                    text = { Text(role) },
-                                    onClick = {
-                                        viewModel.selectRole(role)
-                                        expanded = false
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
                                     }
-                                )
-                            }
-                        }
-                    }
+                                },
+                                onClickLogs = {
+                                    onClickCheckInLogs(user.id)
+                                },
+                                onShareClick = {
+                                    try {
+                                        // 1. Generate QR Code
+                                        val barcodeEncoder = BarcodeEncoder()
+                                        val bitmap: Bitmap = barcodeEncoder.encodeBitmap(
+                                            user.id,
+                                            BarcodeFormat.QR_CODE,
+                                            512,
+                                            512
+                                        )
 
-                }
+                                        // 2. Save to cache directory
+                                        val cachePath = File(context.cacheDir, "images")
+                                        cachePath.mkdirs()
+                                        val file = File(cachePath, "qr_${user.id}.png")
+                                        val fileOutputStream = FileOutputStream(file)
+                                        bitmap.compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            100,
+                                            fileOutputStream
+                                        )
+                                        fileOutputStream.close()
 
-                Spacer(modifier = Modifier.height(10.dp))
+                                        // 3. Get content URI
+                                        val uri: Uri = FileProvider.getUriForFile(
+                                            context,
+                                            "${context.packageName}.provider",
+                                            file
+                                        )
 
-                when (state) {
-                    is UiState.Loading -> {
-                        CustomLoader()
-                    }
+                                        // 4. Share to All Photo Accepting App
 
-                    is UiState.Error -> {
-                        Text("Error: ${(state as UiState.Error).message}")
-                    }
-
-                    is UiState.Success -> {
-                        val list = (state as UiState.Success<List<UserData>>).data
-                        LazyColumn {
-                            items(list) { user ->
-                                PersonInfoCard(
-                                    name = user.name,
-                                    code = "${user.role}-${user.autoId}",
-                                    position = user.position,
-                                    company = user.company,
-                                    imageUrl = user.imgUrl,
-                                    onClick = {
-                                        try {
-                                            // 1. Generate QR Code
-                                            val barcodeEncoder = BarcodeEncoder()
-                                            val bitmap: Bitmap = barcodeEncoder.encodeBitmap(
-                                                user.id,
-                                                BarcodeFormat.QR_CODE,
-                                                512,
-                                                512
-                                            )
-                                            qrBitmap = bitmap
-
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
+                                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "image/png"
+                                            putExtra(Intent.EXTRA_STREAM, uri)
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
-                                    },
-                                    onClickLogs = {
-                                        onClickCheckInLogs(user.id)
-                                    },
-                                    onShareClick = {
-                                        try {
-                                            // 1. Generate QR Code
-                                            val barcodeEncoder = BarcodeEncoder()
-                                            val bitmap: Bitmap = barcodeEncoder.encodeBitmap(
-                                                user.id,
-                                                BarcodeFormat.QR_CODE,
-                                                512,
-                                                512
+
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                "Share image via"
                                             )
+                                        )
 
-                                            // 2. Save to cache directory
-                                            val cachePath = File(context.cacheDir, "images")
-                                            cachePath.mkdirs()
-                                            val file = File(cachePath, "qr_${user.id}.png")
-                                            val fileOutputStream = FileOutputStream(file)
-                                            bitmap.compress(
-                                                Bitmap.CompressFormat.PNG,
-                                                100,
-                                                fileOutputStream
-                                            )
-                                            fileOutputStream.close()
-
-                                            // 3. Get content URI
-                                            val uri: Uri = FileProvider.getUriForFile(
-                                                context,
-                                                "${context.packageName}.provider",
-                                                file
-                                            )
-
-                                            // 4. Share to All Photo Accepting App
-
-                                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                                type = "image/png"
-                                                putExtra(Intent.EXTRA_STREAM, uri)
-                                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            }
-
-                                            context.startActivity(
-                                                Intent.createChooser(
-                                                    shareIntent,
-                                                    "Share image via"
-                                                )
-                                            )
-
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
-                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
                                     }
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
-                        }
-                    }
-
-
-                }
-            }
-
-            qrBitmap?.let {
-                Dialog(onDismissRequest = {
-                    qrBitmap = null
-                }) {
-                    Image(
-                        bitmap = qrBitmap!!.asImageBitmap(),
-                        contentDescription = "Qr"
-                    )
-                }
-            }
-            if (showAddDialog) {
-                AlertDialog(
-                    onDismissRequest = { showAddDialog = false },
-                    title = { Text("Add Attendee") },
-                    text = {
-                        Column {
-                            OutlinedTextField(
-                                value = name,
-                                onValueChange = { name = it },
-                                label = { Text("Full Name") },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = !addingUser
-                            )
-                            OutlinedTextField(
-                                value = company,
-                                onValueChange = { company = it },
-                                label = { Text("Company") },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = !addingUser
-                            )
-                            OutlinedTextField(
-                                value = position,
-                                onValueChange = { position = it },
-                                label = { Text("Position") },
-                                modifier = Modifier.fillMaxWidth(),
-                                enabled = !addingUser
-                            )
-
-                            OutlinedTextField(
-                                value = role,
-                                onValueChange = { role = it },
-                                label = { Text("Role") },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                enabled = !addingUser
-                            )
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(enabled = !addingUser, onClick = {
-                            coroutineScope.launch {
-                                addingUser = true
-                                val result = viewModel.addAttendee(
-                                    name = name,
-                                    company = company,
-                                    position = position,
-                                    role = role,
-                                    eventId = eventId
-                                )
-                                if (result == null) {
-                                    Toast.makeText(
-                                        context,
-                                        "Attendee added successfully",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    viewModel.fetchUsers(eventId)
-                                } else {
-                                    Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
                                 }
-
-                                showAddDialog = false
-                                name = ""
-                                company = ""
-                                position = ""
-                                role = ""
-                                addingUser = false
-                            }
-                        }) {
-                            Text("Add")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showAddDialog = false }) {
-                            Text("Cancel")
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
+                }
+
+
+            }
+        }
+
+        qrBitmap?.let {
+            Dialog(onDismissRequest = {
+                qrBitmap = null
+            }) {
+                Image(
+                    bitmap = qrBitmap!!.asImageBitmap(),
+                    contentDescription = "Qr"
                 )
             }
+        }
+        if (showAddDialog) {
+            AlertDialog(
+                onDismissRequest = { showAddDialog = false },
+                title = { Text("Add Attendee") },
+                text = {
+                    Column {
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            label = { Text("Full Name") },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !addingUser
+                        )
+                        OutlinedTextField(
+                            value = company,
+                            onValueChange = { company = it },
+                            label = { Text("Company") },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !addingUser
+                        )
+                        OutlinedTextField(
+                            value = position,
+                            onValueChange = { position = it },
+                            label = { Text("Position") },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !addingUser
+                        )
+
+                        OutlinedTextField(
+                            value = role,
+                            onValueChange = { role = it },
+                            label = { Text("Role") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            enabled = !addingUser
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(enabled = !addingUser, onClick = {
+                        coroutineScope.launch {
+                            addingUser = true
+                            val result = viewModel.addAttendee(
+                                name = name,
+                                company = company,
+                                position = position,
+                                role = role,
+                                eventId = eventId
+                            )
+                            if (result == null) {
+                                Toast.makeText(
+                                    context,
+                                    "Attendee added successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                viewModel.fetchUsers(eventId)
+                            } else {
+                                Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
+                            }
+
+                            showAddDialog = false
+                            name = ""
+                            company = ""
+                            position = ""
+                            role = ""
+                            addingUser = false
+                        }
+                    }) {
+                        Text("Add")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showAddDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

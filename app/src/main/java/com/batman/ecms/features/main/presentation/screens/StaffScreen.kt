@@ -70,38 +70,42 @@ fun StaffScreen(
 
                 is UiState.Success<StaffScreenData> -> {
 
-                    Column {
-                        Box(modifier = Modifier.height(10.dp))
-                        LazyColumn(modifier = Modifier.padding(horizontal = 10.dp)) {
-                            items(value.data.data) { staff ->
-                                StaffInfo(
-                                    name = staff.name,
-                                    email = staff.email,
-                                    imageUrl = staff.imageUrl,
-                                    canSeeScanned = staff.canSeeScanned,
-                                    canSeeAttendee = staff.canSeeAttendee,
-                                    canAddAttendee = staff.canAddAttendee,
-                                    onSave = { seeAtt, addAtt, seeScan ->
-                                        coroutineScope.launch {
-                                            val ok = viewModel.modifyStaffRole(
-                                                firebaseId = staff.firebaseId,
-                                                canSeeScanned = seeAtt,
-                                                canAddAttendee = addAtt,
-                                                canSeeAttendee = seeScan,
-                                                eventId = eventId
-                                            )
-                                            viewModel.fetchStaffs(eventId)
-                                            Toast.makeText(
-                                                context,
-                                                if (ok) "Staff Role Changed" else "Failed To Change",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
-                                    },
-                                    isModifying = value.data.isModifying
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                            }
+                    LazyColumn(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp)) {
+
+                        item {
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+
+                        items(value.data.data) { staff ->
+                            StaffInfo(
+                                name = staff.name,
+                                email = staff.email,
+                                imageUrl = staff.imageUrl,
+                                canSeeScanned = staff.canSeeScanned,
+                                canSeeAttendee = staff.canSeeAttendee,
+                                canAddAttendee = staff.canAddAttendee,
+                                onSave = { seeAtt, addAtt, seeScan ->
+                                    coroutineScope.launch {
+                                        val ok = viewModel.modifyStaffRole(
+                                            firebaseId = staff.firebaseId,
+                                            canSeeScanned = seeAtt,
+                                            canAddAttendee = addAtt,
+                                            canSeeAttendee = seeScan,
+                                            eventId = eventId
+                                        )
+                                        viewModel.fetchStaffs(eventId)
+                                        Toast.makeText(
+                                            context,
+                                            if (ok) "Staff Role Changed" else "Failed To Change",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                },
+                                isModifying = value.data.isModifying
+                            )
+                            Spacer(modifier = Modifier.size(10.dp))
                         }
                     }
                 }
